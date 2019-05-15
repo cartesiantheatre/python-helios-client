@@ -25,12 +25,9 @@ def getLongDescription():
 setup(
 
     # Basic metadata...
-    name='helios',
+    name='python3-helios',
     version='0.1',
     packages=find_namespace_packages(include=['Source']),
-
-    # Scripts to include...
-    py_modules=['helios'],
 
     # Depends 
     install_requires=['requests', 'json', 'urllib', 'hurry.filesize'],
@@ -41,7 +38,7 @@ setup(
     description="Pure python 3 module to communicate with a Helios server.",
     long_description=getLongDescription(),
     license="LGPL",
-    keywords="music similarity match catalogue digital signal processing",
+    keywords=['music', 'similarity', 'match', 'catalogue', 'digital', 'signal', 'processing'],
     url="https://www.heliosmusic.io",
     project_urls={
         "Documentation": "https://heliosmusic.io/api.html"

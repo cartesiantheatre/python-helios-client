@@ -22,7 +22,7 @@ Depends:
     python3,
     ${misc:Depends},
     ${python3:Depends}
-Description: python client library and utilities for helios server (Python 3)
+Description: pure python module to access a remote Helios server (Python 3)
  Helios is an intelligent music recommendation platform.
  .
  This is an easy to use public pure Python 3 module that provides an API to
