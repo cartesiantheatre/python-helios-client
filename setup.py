@@ -25,7 +25,7 @@ def getLongDescription():
 setup(
 
     # Basic metadata...
-    name='helios',
+    name='helios-client',
     version='0.1.dev20190518',
     package_dir={'': 'Source'},
     packages=find_namespace_packages(where='Source'),
@@ -49,9 +49,9 @@ setup(
     keywords=['music', 'similarity', 'match', 'catalogue', 'digital', 'signal', 'processing'],
     url="https://www.heliosmusic.io",
     project_urls={
-        "Bug Tracker": "https://github.com/cartesiantheatre/python3-helios/issues",
+        "Bug Tracker": "https://github.com/cartesiantheatre/python3-helios-client/issues",
         "Documentation": "https://heliosmusic.io/api.html",
-        "Source Code": "https://github.com/cartesiantheatre/python3-helios"
+        "Source Code": "https://github.com/cartesiantheatre/python3-helios-client"
     },
     python_requires=">= 3.*",
     classifiers = [

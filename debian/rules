@@ -9,7 +9,7 @@ DH_VERBOSE = 1
 export DH_OPTIONS=-v
 
 # Set pybuild package name...
-export PYBUILD_NAME=helios
+export PYBUILD_NAME=helios_client
 
 # Standard rules and preset shell variables...
 include /usr/share/dpkg/default.mk
@@ -36,6 +36,8 @@ PACKAGE_BUILD = $(PACKAGE_DIR)/$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM)
 override_dh_clean:
 	dh_clean
 	$(RM) -rv $(SOURCE_DIR)/Source/$(PYBUILD_NAME).egg-info
+	$(RM) -rv $(SOURCE_DIR)/.eggs
+	$(RM) -rv $(SOURCE_DIR)/dist
 	$(RM) -rv $(PACKAGE_BUILD)
 
 # Prepare an upstream vanilla distribution tarball as per DPM § 4.9...
