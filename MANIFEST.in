@@ -1,0 +1,3 @@
+include Copying
+include *.md
+

@@ -12,7 +12,7 @@ import sys
 
 # To allow this script to be run from any path, change the current directory to
 #  the one hosting this script so that setuptools can find the required files...
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 # Get the long description from the ReadMe.md...
 def getLongDescription():
@@ -25,24 +25,35 @@ def getLongDescription():
 setup(
 
     # Basic metadata...
-    name='python3-helios',
-    version='0.1',
-    packages=find_namespace_packages(include=['Source']),
+    name='helios',
+    version='0.1.dev20190518',
+    package_dir={'': 'Source'},
+    packages=find_namespace_packages(where='Source'),
+
+    include_package_data=True,
 
     # Depends 
-    install_requires=['requests', 'json', 'urllib', 'hurry.filesize'],
+    install_requires=[
+        'colorama',
+        'hfilesize',
+        'requests',
+        'termcolor'
+    ],
 
     # Extended metadata to display on PyPI...
     author="Cartesian Theatre",
-    author_email="packages@cartesiantheatre.com",
+    author_email="technical_support@heliosmusic.io",
     description="Pure python 3 module to communicate with a Helios server.",
     long_description=getLongDescription(),
     license="LGPL",
     keywords=['music', 'similarity', 'match', 'catalogue', 'digital', 'signal', 'processing'],
     url="https://www.heliosmusic.io",
     project_urls={
-        "Documentation": "https://heliosmusic.io/api.html"
+        "Bug Tracker": "https://github.com/cartesiantheatre/python3-helios/issues",
+        "Documentation": "https://heliosmusic.io/api.html",
+        "Source Code": "https://github.com/cartesiantheatre/python3-helios"
     },
+    python_requires=">= 3.*",
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Console',
