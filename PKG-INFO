@@ -1,0 +1,41 @@
+Metadata-Version: 1.2
+Name: helios-client
+Version: 0.1.dev20190518
+Summary: Pure python 3 module to communicate with a Helios server.
+Home-page: https://www.heliosmusic.io
+Author: Cartesian Theatre
+Author-email: technical_support@heliosmusic.io
+License: LGPL
+Project-URL: Bug Tracker, https://github.com/cartesiantheatre/python3-helios-client/issues
+Project-URL: Documentation, https://heliosmusic.io/api.html
+Project-URL: Source Code, https://github.com/cartesiantheatre/python3-helios-client
+Description: # Helios Python API
+        
+        Helios is an intelligent music recommendation platform. Visit us on the web at:
+        
+           <https://www.heliosmusic.io>
+        
+        This is an easy to use pure Python 3 module that provides an API to communicate
+        with a remote Helios server. You can manage your music catalogue as well as
+        perform similarity matches.
+        
+        Copyright (C) 2015-2019 Cartesian Theatre. See Copying for more information.
+        
+        
+Keywords: music,similarity,match,catalogue,digital,signal,processing
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Internet
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Indexing/Search
+Classifier: Topic :: Multimedia :: Sound/Audio
+Classifier: Topic :: Multimedia :: Sound/Audio :: Analysis
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >= 3.*

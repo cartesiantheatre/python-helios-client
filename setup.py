@@ -24,36 +24,9 @@ def getLongDescription():
 # Provide setup parameters for package...
 setup(
 
-    # Basic metadata...
-    name='helios-client',
-    version='0.1.dev20190518',
-    package_dir={'': 'Source'},
-    packages=find_namespace_packages(where='Source'),
-
-    include_package_data=True,
-
-    # Depends 
-    install_requires=[
-        'colorama',
-        'hfilesize',
-        'requests',
-        'termcolor'
-    ],
-
-    # Extended metadata to display on PyPI...
-    author="Cartesian Theatre",
-    author_email="technical_support@heliosmusic.io",
-    description="Pure python 3 module to communicate with a Helios server.",
-    long_description=getLongDescription(),
-    license="LGPL",
-    keywords=['music', 'similarity', 'match', 'catalogue', 'digital', 'signal', 'processing'],
-    url="https://www.heliosmusic.io",
-    project_urls={
-        "Bug Tracker": "https://github.com/cartesiantheatre/python3-helios-client/issues",
-        "Documentation": "https://heliosmusic.io/api.html",
-        "Source Code": "https://github.com/cartesiantheatre/python3-helios-client"
-    },
-    python_requires=">= 3.*",
+    # Metadata...
+    author='Cartesian Theatre',
+    author_email='technical_support@heliosmusic.io',
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -70,5 +43,30 @@ setup(
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
+    description='Pure python 3 module to communicate with a Helios server.',
+    keywords=['music', 'similarity', 'match', 'catalogue', 'digital', 'signal', 'processing'],
+    license='LGPL',
+    long_description=getLongDescription(),
+    name='helios-client',
+    project_urls={
+        'Bug Tracker': 'https://github.com/cartesiantheatre/python3-helios-client/issues',
+        'Documentation': 'https://heliosmusic.io/api.html',
+        'Source Code': 'https://github.com/cartesiantheatre/python3-helios-client'
+    },
+    url='https://www.heliosmusic.io',
+    version='0.1.dev20190518',
+
+    # Options...
+    include_package_data=True,
+    install_requires=[
+        'colorama',
+        'hfilesize',
+        'requests',
+        'termcolor'
+    ],
+    package_dir={'': 'Source'},
+    packages=find_namespace_packages(where='Source'),
+    python_requires='>= 3.*',
+    zip_safe=True
 )
 
