@@ -9,192 +9,195 @@ import os
 import sys
 import requests
 import json
-from helios.exceptions import *
-from helios.responses import *
+from helios import exceptions
+from helios import responses
 
 # i18n...
 import gettext
 _ = gettext.gettext
 
-def foo():
-    print('blah')
-
 # Class to handle all client communication with a Helios server...
 class client(object):
 
     # Class attribute for JSON MIME type...
-    _JSONMimeType  = 'application/json'
+    _json_mime_type  = 'application/json'
 
     # Constructor...
-    def __init__(self, Token, Host, Port=6440, Version='v1'):
+    def __init__(self, token, host, port=6440, version='v1'):
 
         # Initialize...
-        self._Token     = Token
-        self._Host      = Host
-        self._Port      = Port
-        self._Version   = Version
+        self._token     = token
+        self._host      = host
+        self._port      = port
+        self._version   = version
 
     # Add a new song to your music catalogue...
-    def addSong(self, Store=True, NewSong=dict()):
+    def add_song(self, store=True, new_song=dict()):
 
         # Initialize headers...
-        Headers = {}
-        Headers['X-API-Token']  = self._Token
-        Headers['Accept']       = client._JSONMimeType
-        Headers['Content-Type'] = client._JSONMimeType
+        headers = {}
+        headers['X-API-Token']  = self._token
+        headers['Accept']       = client._json_mime_type
+        headers['Content-Type'] = client._json_mime_type
 
         # Prepare request...
-        Response = requests.post(
-            self._getURL('/songs'),
-            params={'store': str(Store).lower()},
-            headers=Headers,
-            json=NewSong)
+        response = requests.post(
+            self._get_url('/songs'),
+            params={'store': str(store).lower()},
+            headers=headers,
+            json=new_song)
 
         # Check response OK...
-        self._submitRequest(Response, 201)
+        self._submit_request(response, 201)
 
         # Retrieve JSON body...
-        JSONResponse = Response.json()
+        json_response = response.json()
 
         # Return constructed stored song from response...
         return responses.StoredSongResponse(
-            album=JSONResponse['album'],
-            algorithm_age=int(JSONResponse['algorithm_age']),
-            artist=JSONResponse['artist'],
-            duration=int(JSONResponse['duration']),
-            genre=JSONResponse['genre'],
-            id=int(JSONResponse['id']),
-            isrc=JSONResponse['isrc'],
-            location=JSONResponse['location'],
-            reference=JSONResponse['reference'],
-            title=JSONResponse['title'],
-            year=int(JSONResponse['year']))
+            album=json_response['album'],
+            algorithm_age=int(json_response['algorithm_age']),
+            artist=json_response['artist'],
+            duration=int(json_response['duration']),
+            genre=json_response['genre'],
+            id=int(json_response['id']),
+            isrc=json_response['isrc'],
+            location=json_response['location'],
+            reference=json_response['reference'],
+            title=json_response['title'],
+            year=int(json_response['year']))
 
     # Check to ensure an HTTP response was as expected, and if not, to raise an
     #  appropriate exception...
-    def _submitRequest(self,  Endpoint, Method, Headers=dict()):
+    def _submit_request(self, endpoint, method, headers=dict()):
 
         # Get the base URL...
-        URL = self._getURL(Endpoint)
+        url = self._get_url(endpoint)
+
+        raise exceptions.ConnectionError('foo')
 
         # Try to submit request to server using appropriate HTTP verb...
         try:
 
             # Perform GET request if requested...
-            if Method == 'GET':
-                Response = requests.get(URL, headers=Headers)
+            if method == 'GET':
+                response = requests.get(url, headers=headers)
 
-        # Connection timeout or bad host...
-        except (requests.ConnectionError, requests.Timeout) as SomeException:
-            raise exceptions.IOError() from SomeException
+        # Bad host...
+        except requests.ConnectionError:
+            raise exceptions.ConnectionError(_('bad host'))
+
+        # Connection timeout...
+        except requests.Timeout:
+            raise exceptions.ConnectionError(_('connection timeout'))
 
         # Found host, but it's rejecting our connection request...
-        except ConnectionRefusedError as SomeException:
-            raise exception.IOError() from SomeException
+        except ConnectionRefusedError as someException:
+            raise exceptions.ConnectionError(someException)
 
         # We reached the server. If we didn't get an expected response, raise an
         #  exception...
         try:
-            Response.raise_for_status()
+            response.raise_for_status()
 
         # Server or something in between reported an error...
-        except Exception as SomeException:
+        except Exception as someException:
 
             # Get the response body...
-            JSONResponse = SomeException.response.json()
-            Error = responses.ErrorResponse(
-                code=int(JSONResponse['code']),
-                details=JSONResponse['details'],
-                summary=JSONResponse['summary'])
+            json_response = someException.response.json()
+            error = responses.ErrorResponse(
+                code=int(json_response['code']),
+                details=json_response['details'],
+                summary=json_response['summary'])
 
             # Bad request exception. Suitable on a 400...
-            if Code is 400:
-                raise BadRequest(Error.details, Error.summary)
+            if code == 400:
+                raise exceptions.BadRequest(error.details, error.summary)
 
             # Unauthorized exception. Suitable on a 401...
-            elif Code is 401:
-                raise Unauthorized(Error.details, Error.summary)
+            elif code == 401:
+                raise exceptions.Unauthorized(error.details, error.summary)
 
             # Not found exception. Suitable on a 404...
-            elif Code is 404:
-                raise NotFound(Error.details, Error.summary)
+            elif code == 404:
+                raise exceptions.NotFound(error.details, error.summary)
 
             # Internal server error exception. Suitable on a 500...
-            elif Code is 500:
-                raise InternalServer(Error.details, Error.summary)
+            elif code == 500:
+                raise exceptions.InternalServer(error.details, error.summary)
 
             # Insufficient storage exception. Suitable on a 507...
-            elif Code is 507:
-                raise InsufficientStorage(Error.details, Error.summary)
+            elif code == 507:
+                raise exceptions.InsufficientStorage(error.details, error.summary)
 
             # Some other code...
             else:
                 raise
 
         # Return the response object...
-        return Response
+        return response
 
     # Delete a song or songs by their ID...
-    def deleteSongsByID(self):
+    def delete_songs_by_id(self):
         pass
 
     # Delete songs by their reference...
-    def deleteSongsByReference(self):
+    def delete_songs_by_reference(self):
         pass
 
     # Retrieve a list of all songs...
-    def getAllSongs(self):
+    def get_all_songs(self):
         pass
 
     # Search for a similar song or songs...
-    def getSimilarSongs(self):
+    def get_similar_songs(self):
         pass
 
     # Retrieve a song or songs by their IDs...
-    def getSongsById(self, SongID):
-        return requests.get(self._getURL('/songs/by_id/{:d}/'.format(SongID)), headers={'Accept': 'application/json'})
+    def get_songs_by_id(self, song_id):
+        return requests.get(self._get_url('/songs/by_id/{:d}/'.format(song_id)), headers={'Accept': 'application/json'})
 
     # Get server information status as JSON...
-    def getServerStatus(self):
+    def get_server_status(self):
 
         # Initialize headers...
-        Headers = {}
-        Headers['X-API-Token']  = self._Token
-        Headers['Accept']       = client._JSONMimeType
+        headers = {}
+        headers['X-API-Token']  = self._token
+        headers['Accept']       = client._json_mime_type
 
         # Submit request...
-        Response = self._submitRequest('/status', 'GET', Headers)
+        response = self._submit_request('/status', 'GET', headers=headers)
 
         # Parse response...
-        return Response.json()
+        return response.json()
 
     # Retrieve songs by their reference...
-    def getSongsByReference(self):
+    def get_songs_by_reference(self):
         pass
 
     # Download a song by ID...
-    def getSongDownloadById(self):
+    def get_song_download_by_id(self):
         pass
 
     # Download a song by reference...
-    def getSongDownloadByReference(self):
+    def get_song_download_by_reference(self):
         pass
 
     # Get the URL to the root of all API endpoints...
-    def _getURL(self, Endpoint):
+    def _get_url(self, endpoint):
 
         # Remove leading and trailing forward slashes from endpoint...
-        Endpoint = Endpoint.rstrip('/')
-        Endpoint = Endpoint.lstrip('/')
+        endpoint = endpoint.rstrip('/')
+        endpoint = endpoint.lstrip('/')
 
         # Construct API URL...
-        return 'http://{:s}:{:d}/{:s}/{:s}/'.format(self._Host, self._Port, self._Version, Endpoint)
+        return 'http://{:s}:{:d}/{:s}/{:s}/'.format(self._host, self._port, self._version, endpoint)
 
     # Modify a song in the catalogue by its ID...
-    def modifySongByID(self):
+    def modify_song_by_id(self):
         pass
 
     # Modify a song in the catalogue by reference...
-    def modifySongByReference(self):
+    def modify_song_by_reference(self):
         pass
 

@@ -5,6 +5,6 @@
 #
 
 # Import everything in this module...
-from .client import client, foo
-from .exceptions import *
+from .client import client
+import helios.exceptions
 
