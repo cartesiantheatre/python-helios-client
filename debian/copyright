@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: python3-helios-client
+Upstream-Name: python-helios-client
 Upstream-Contact: Cartesian Theatre <info@cartesiantheatre.com>
 Source: git@github.com:cartesiantheatre/python3-helios-client.git
 Disclaimer: See Copying.

@@ -55,7 +55,6 @@ $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.bz2:
 	    --formats=bztar                                                         \
 	    --dist-dir=$(PACKAGE_DIR)/$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM)         \
 	    egg_info --egg-base=$(PACKAGE_BUILD)                                    \
-	    sdist                                                                   \
 	&& mv -v `$(SOURCE_DIR)/setup.py --fullname`.tar.bz2 $(SOURCE_DIR)/../$@
 	@echo "# Cleaning up..."
 	$(RM) -rv $(SOURCE_DIR)/Source/$(PYBUILD_NAME).egg-info

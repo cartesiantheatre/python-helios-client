@@ -1,4 +1,4 @@
-python3-helios-client (0.1-git20190521-ct1~disco) disco; urgency=medium
+python-helios-client (0.1-git20190521-ct1~disco) disco; urgency=medium
 
   * First packaging.
 

@@ -1,8 +1,9 @@
-Source: python3-helios-client
+Source: python-helios-client
 Section: python
 Priority: optional
 Maintainer: Cartesian Theatre Packaging <packaging@cartesiantheatre.com>
 Standards-Version: 4.3.0.3
+Testsuite: autopkgtest-pkg-python
 Build-Depends:
     bash-completion (>= 1:2.1),
     coreutils (>= 8.23),
@@ -12,8 +13,11 @@ Build-Depends:
     lintian,
     patch,
     python3-all,
+    python3-requests,
     python3-setuptools
 Homepage: https://www.heliosmusic.io
+Vcs-Git: https://www.github.com/cartesiantheatre/python-helios-client.git
+Vcs-Browser: https://github.com/cartesiantheatre/python-helios-client
 
 Package: python3-helios-client
 Architecture: all
