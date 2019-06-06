@@ -74,8 +74,6 @@ class client(object):
         # Get the base URL...
         url = self._get_url(endpoint)
 
-        raise exceptions.ConnectionError('foo')
-
         # Try to submit request to server using appropriate HTTP verb...
         try:
 
@@ -83,56 +81,48 @@ class client(object):
             if method == 'GET':
                 response = requests.get(url, headers=headers)
 
-        # Bad host...
-        except requests.ConnectionError:
-            raise exceptions.ConnectionError(_('bad host'))
-
-        # Connection timeout...
-        except requests.Timeout:
-            raise exceptions.ConnectionError(_('connection timeout'))
-
-        # Found host, but it's rejecting our connection request...
-        except ConnectionRefusedError as someException:
-            raise exceptions.ConnectionError(someException)
-
-        # We reached the server. If we didn't get an expected response, raise an
-        #  exception...
-        try:
+            # We reached the server. If we didn't get an expected response,
+            #  raise an exception...
             response.raise_for_status()
 
-        # Server or something in between reported an error...
-        except Exception as someException:
+        # Server reported an error...
+        except requests.HTTPError as ServerError:
 
-            # Get the response body...
-            json_response = someException.response.json()
-            error = responses.ErrorResponse(
-                code=int(json_response['code']),
-                details=json_response['details'],
-                summary=json_response['summary'])
+            # Try to get the response body...
+            json_response = ServerError.response.json()
+
+            # Extract HTTP code from JSON response...
+            code = int(json_response['code'])
+
+            # Extract error details from JSON response...
+            details = json_response['details']
+
+            # Extract error summary from JSON response...
+            summary = json_response['summary']
 
             # Bad request exception. Suitable on a 400...
             if code == 400:
-                raise exceptions.BadRequest(error.details, error.summary)
+                raise exceptions.BadRequest(code, details, summary)
 
             # Unauthorized exception. Suitable on a 401...
             elif code == 401:
-                raise exceptions.Unauthorized(error.details, error.summary)
+                raise exceptions.Unauthorized(code, details, summary)
 
             # Not found exception. Suitable on a 404...
             elif code == 404:
-                raise exceptions.NotFound(error.details, error.summary)
+                raise exceptions.NotFound(code, details, summary)
 
             # Internal server error exception. Suitable on a 500...
             elif code == 500:
-                raise exceptions.InternalServer(error.details, error.summary)
+                raise exceptions.InternalServer(code, details, summary)
 
             # Insufficient storage exception. Suitable on a 507...
             elif code == 507:
-                raise exceptions.InsufficientStorage(error.details, error.summary)
+                raise exceptions.InsufficientStorage(code, details, summary)
 
             # Some other code...
             else:
-                raise
+                raise exceptions.HeliosExceptionBase(code, details, summary)
 
         # Return the response object...
         return response
@@ -155,7 +145,7 @@ class client(object):
 
     # Retrieve a song or songs by their IDs...
     def get_songs_by_id(self, song_id):
-        return requests.get(self._get_url('/songs/by_id/{:d}/'.format(song_id)), headers={'Accept': 'application/json'})
+        return requests.get(self._get_url(f'/songs/by_id/{song_id}/', headers={'Accept': 'application/json'}))
 
     # Get server information status as JSON...
     def get_server_status(self):
@@ -191,7 +181,7 @@ class client(object):
         endpoint = endpoint.lstrip('/')
 
         # Construct API URL...
-        return 'http://{:s}:{:d}/{:s}/{:s}/'.format(self._host, self._port, self._version, endpoint)
+        return f'http://{self._host}:{self._port}/{self._version}/{endpoint}/'
 
     # Modify a song in the catalogue by its ID...
     def modify_song_by_id(self):

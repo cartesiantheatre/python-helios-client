@@ -8,59 +8,62 @@
 class HeliosExceptionBase(Exception):
 
     # Constructor...
-    def __init__(self, code=None, message=None):
+    def __init__(self, code=None, details=None, summary=None):
 
         # Initialize...
         self._code      = code
-        self._message   = message
+        self._details   = details
+        self._summary   = summary
 
         # Construct base object...
-        Exception.__init__(self, message)
+        Exception.__init__(self, summary)
 
-    # What was the problem as a human readable string?
-    def what(self):
-        return self._message
+    # What are the details of the problem as a human readable string?
+    def get_details(self):
+        return self._details
 
-# A problem occured during input or output. Suitable for timeouts or if the host
-#  could not be reached...
-class ConnectionError(HeliosExceptionBase):
+    # What were the details of the problem as a human readable string?
+    def get_summary(self):
+        return self._summary
 
-    # Constructor...
-    def __init__(self, message=None):
-        HeliosExceptionBase.__init__(self, code=None, message=None)
 
 # Bad request exception. Suitable on a 400...
 class BadRequest(HeliosExceptionBase):
 
     # Constructor...
-    def __init__(self, code=400, message=None):
-        HeliosExceptionBase.__init__(self, code, message)
+    def __init__(self, code=None, details=None, summary=None):
+        super().__init__(code, details, summary)
+
 
 # Unauthorized exception. Suitable on a 401...
 class Unauthorized(HeliosExceptionBase):
 
     # Constructor...
-    def __init__(self, code=401, message=None):
-        HeliosExceptionBase.__init__(self, code, message)
+    def __init__(self, code=None, details=None, summary=None):
+        super().__init__(code, details, summary)
+
 
 # Not found exception. Suitable on a 404...
 class NotFound(HeliosExceptionBase):
 
     # Constructor...
-    def __init__(self, code=404, message=None):
-        HeliosExceptionBase.__init__(self, code, message)
+    def __init__(self, code=None, details=None, summary=None):
+        super().__init__(code, details, summary)
+
 
 # Internal server error exception. Suitable on a 500...
 class InternalServer(HeliosExceptionBase):
 
     # Constructor...
-    def __init__(self, code=500, message=None):
-        HeliosExceptionBase.__init__(self, code, message)
+    def __init__(self, code=None, details=None, summary=None):
+        super().__init__(code, details, summary)
+
 
 # Insufficient storage exception. Suitable on a 507...
 class InsufficientStorage(HeliosExceptionBase):
 
     # Constructor...
-    def __init__(self, code=507, message=None):
-        HeliosExceptionBase.__init__(self, code, message)
+    def __init__(self, code=None, details=None, summary=None):
+        super().__init__(code, details, summary)
+
 
