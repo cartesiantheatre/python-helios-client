@@ -15,7 +15,7 @@ import sys
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 # Get the long description from the ReadMe.md...
-def getLongDescription():
+def get_long_description():
     long_description = []
     with open('README.md') as file:
         long_description.append(file.read())
@@ -26,7 +26,7 @@ setup(
 
     # Metadata...
     author='Cartesian Theatre',
-    author_email='technical_support@heliosmusic.io',
+    author_email='info@heliosmusic.io',
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -46,7 +46,7 @@ setup(
     description='Pure python 3 module to communicate with a Helios server.',
     keywords=['music', 'similarity', 'match', 'catalogue', 'digital', 'signal', 'processing'],
     license='LGPL',
-    long_description=getLongDescription(),
+    long_description=get_long_description(),
     name='helios-client',
     project_urls={
         'Bug Tracker': 'https://github.com/cartesiantheatre/python3-helios-client/issues',
@@ -54,15 +54,18 @@ setup(
         'Source Code': 'https://github.com/cartesiantheatre/python3-helios-client'
     },
     url='https://www.heliosmusic.io',
-    version='0.1.dev20190518',
+    version='0.1.dev20190628',
 
     # Options...
     include_package_data=True,
     install_requires=[
+        'attr',
         'colorama',
         'hfilesize',
+        'marshmallow',
         'requests',
-        'termcolor'
+        'termcolor',
+        'tqdm'
     ],
     package_dir={'': 'Source'},
     packages=find_namespace_packages(where='Source'),

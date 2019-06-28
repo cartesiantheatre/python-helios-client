@@ -7,4 +7,6 @@
 # Import everything in this module...
 from .client import client
 import helios.exceptions
+import helios.requests
+import helios.responses
 

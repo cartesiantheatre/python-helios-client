@@ -13,8 +13,11 @@ Build-Depends:
     lintian,
     patch,
     python3-all,
+    python3-attr,
+    python3-marshmallow,
     python3-requests,
-    python3-setuptools
+    python3-setuptools,
+    python3-tqdm
 Homepage: https://www.heliosmusic.io
 Vcs-Git: https://www.github.com/cartesiantheatre/python-helios-client.git
 Vcs-Browser: https://github.com/cartesiantheatre/python-helios-client
