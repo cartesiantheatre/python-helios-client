@@ -54,12 +54,12 @@ setup(
         'Source Code': 'https://github.com/cartesiantheatre/python3-helios-client'
     },
     url='https://www.heliosmusic.io',
-    version='0.1.dev20190628',
+    version='0.1.dev20190629',
 
     # Options...
     include_package_data=True,
     install_requires=[
-        'attr',
+        'attrs',
         'colorama',
         'hfilesize',
         'marshmallow',
