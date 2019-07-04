@@ -14,6 +14,7 @@ import json
 from http.client import HTTPConnection
 from urllib3.exceptions import NewConnectionError, MaxRetryError, ConnectTimeoutError
 import helios
+import helios.chunked_upload
 from tqdm import tqdm
 
 # i18n...
@@ -69,19 +70,18 @@ class client(object):
         except marshmallow.ValidationError as validationException:
             raise helios.exceptions.Validation(validationException)
 
-        # Submit request and retrieve JSON body...
-        response = self._submit_json_request(
-            '/songs',
-            'POST',
-            headers,
-            query_parameters,
-            new_song_dict)
-        stored_song_response_dict = response.json()
+        # Submit request...
+        response = self._submit_request(
+            endpoint='/songs',
+            method='POST',
+            headers=headers,
+            query_parameters=query_parameters,
+            data=json.dumps(new_song_dict))
 
         # Extract and construct stored song from response...
         try:
-            stored_song_response_schema = helios.responses.StoredSongResponseSchema()
-            stored_song_response = stored_song_response_schema.load(stored_song_response_dict)
+            stored_song_response_schema = helios.responses.StoredSongSchema()
+            stored_song_response = stored_song_response_schema.load(response.json())
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
@@ -104,11 +104,11 @@ class client(object):
         else:
             raise Exception(_('You must provide either a song_id or a song_reference.'))
 
-        # Submit request and retrieve JSON body...
-        response = self._submit_json_request(
-            endpoint,
-            'DELETE',
-            headers)
+        # Submit request...
+        response = self._submit_request(
+            endpoint=endpoint,
+            method='DELETE',
+            headers=headers)
 
     # Retrieve a list of all songs...
     def get_all_songs(self, page=1, page_size=100):
@@ -122,19 +122,23 @@ class client(object):
         query_parameters['page']        = int(page)
         query_parameters['page_size']   = int(page_size)
 
-        # Submit request and retrieve JSON body...
-        response = self._submit_json_request(
-            '/songs/all',
-            'GET',
-            headers,
-            query_parameters)
-
-        # Extract and construct each stored song and add to list...
+        # Submit request, extract, construct each stored song and add to list...
         try:
 
-            # Storage for list of stored songs...
-            stored_song_schema = helios.responses.StoredSongResponseSchema(many=True)
+            # Submit request...
+            response = self._submit_request(
+                endpoint='/songs/all',
+                method='GET',
+                headers=headers,
+                query_parameters=query_parameters)
+
+            # Validate response...
+            stored_song_schema = helios.responses.StoredSongSchema(many=True)
             all_songs_list = stored_song_schema.load(response.json())
+
+        # No more songs...
+        except helios.exceptions.NotFound:
+            return []
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
@@ -168,12 +172,15 @@ class client(object):
         headers['Accept']       = client._json_mime_type
 
         # Submit request...
-        response = self._submit_json_request('/status', 'GET', headers)
-        response_dict = response.json()
+        response = self._submit_request(
+            endpoint='/status',
+            method='GET',
+            headers=headers)
 
         # Extract and construct server status...
         try:
-            server_status_schema = helios.responses.ServerStatusResponseSchema()
+            response_dict = response.json()
+            server_status_schema = helios.responses.ServerStatusSchema()
             server_status = server_status_schema.load(response_dict['server_status'])
 
         # Deserialization error...
@@ -183,6 +190,42 @@ class client(object):
         # Parse response...
         return server_status
 
+    # Perform a similarity search within the music catalogue...
+    def get_similar_songs(self, similarity_search_dict):
+
+        # Initialize headers...
+        headers                     = self._common_headers
+        headers['Accept']           = client._json_mime_type
+        headers['Content-Type']     = client._json_mime_type
+
+        # Validate similarity_search_dict against schema...
+        try:
+            similarity_search_schema = helios.requests.SimilaritySearchSchema()
+            similarity_search_schema.load(similarity_search_dict)
+        except marshmallow.ValidationError as validationException:
+            raise helios.exceptions.Validation(validationException)
+
+        # Submit request...
+        response = self._submit_request(
+            endpoint='/songs/similar',
+            method='POST',
+            headers=headers,
+            data=json.dumps(similarity_search_dict))
+
+        # Extract and construct each stored song and add to list...
+        try:
+
+            # Storage for list of stored songs...
+            stored_song_schema = helios.responses.StoredSongSchema(many=True)
+            songs_list = stored_song_schema.load(response.json())
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as someException:
+            raise helios.exceptions.UnexpectedResponse(someException.messages)
+
+        # Return similar songs list...
+        return songs_list
+
     # Retrieve the stored song model metadata of a song...
     def get_song(self, song_id=None, song_reference=None):
 
@@ -191,19 +234,22 @@ class client(object):
             endpoint = F'/songs/by_id/{song_id}'
         elif song_reference:
             endpoint = F'/songs/by_reference/{song_reference}'
+        else:
+            raise helios.exceptions.ExceptionBase(_('You must provide either a song_id or a song_reference.'))
 
         # Initialize headers...
         headers                         = self._common_headers
         headers['Accept']               = client._json_mime_type
 
-        # Submit request and retrieve JSON body...
-        response = self._submit_json_request(endpoint, 'GET', headers)
+        # Submit request...
+        response = self._submit_request(
+            endpoint=endpoint,
+            method='GET',
+            headers=headers)
 
         # Extract and construct each stored song and add to list...
         try:
-
-            # Storage for list of single stored songs...
-            stored_song_schema = helios.responses.StoredSongResponseSchema(many=True)
+            stored_song_schema = helios.responses.StoredSongSchema(many=True)
             songs_list = stored_song_schema.load(response.json())
 
             # There should have been only one song retrieved...
@@ -306,19 +352,18 @@ class client(object):
         except marshmallow.ValidationError as validationException:
             raise helios.exceptions.Validation(validationException)
 
-        # Submit request and retrieve JSON body...
-        response = self._submit_json_request(
-            endpoint,
-            'PATCH',
-            headers,
-            query_parameters,
-            patch_song_dict)
-        response_dict = response.json()
+        # Submit request...
+        response = self._submit_request(
+            endpoint=endpoint,
+            method='PATCH',
+            headers=headers,
+            query_parameters=query_parameters,
+            data=json.dumps(patch_song_dict))
 
         # Extract and construct server status...
         try:
-            stored_song_response_schema = helios.responses.StoredSongResponseSchema()
-            stored_song_response = stored_song_response_schema.load(response_dict)
+            stored_song_response_schema = helios.responses.StoredSongSchema()
+            stored_song_response = stored_song_response_schema.load(response.json())
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
@@ -366,7 +411,13 @@ class client(object):
 
     # Send a request to endpoint using method, headers, query parameters, and
     #  body...
-    def _submit_json_request(self, endpoint, method, headers=dict(), query_parameters=dict(), body=dict()):
+    def _submit_request(
+        self,
+        endpoint,
+        method,
+        headers=dict(),
+        query_parameters=dict(),
+        data=bytes()):
 
         # Get the base URL...
         url = self._get_endpoint_url(endpoint)
@@ -380,7 +431,7 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    json=body)
+                    data=data)
 
             # Perform GET request if requested...
             elif method == 'GET':
@@ -388,7 +439,7 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    json=body)
+                    data=data)
 
             # Perform PATCH request if requested...
             elif method == 'PATCH':
@@ -396,7 +447,7 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    json=body)
+                    data=data)
 
             # Perform POST request if requested...
             elif method == 'POST':
@@ -404,7 +455,7 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    json=body)
+                    data=data)
 
             # Unknown method...
             else:

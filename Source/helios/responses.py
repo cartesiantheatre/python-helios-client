@@ -10,7 +10,7 @@ from marshmallow import Schema, fields, post_load
 
 # Stored song response after adding, modifying, or retrieving a song...
 @attr.s
-class StoredSongResponse:
+class StoredSong:
     album           = attr.ib()
     algorithm_age   = attr.ib()
     artist          = attr.ib()
@@ -25,7 +25,7 @@ class StoredSongResponse:
 
 
 # Stored song response schema after adding, modifying, or retrieving a song...
-class StoredSongResponseSchema(Schema):
+class StoredSongSchema(Schema):
 
     # Fields...
     album           = fields.String(required=True)
@@ -42,20 +42,20 @@ class StoredSongResponseSchema(Schema):
 
     # Callback to receive dictionary of deserialized data...
     @post_load
-    def make_stored_song_response(self, data, **kwargs):
-        return StoredSongResponse(**data)
+    def make_stored_song(self, data, **kwargs):
+        return StoredSong(**data)
 
 
 # Server error response...
 @attr.s
-class ErrorResponse:
+class Error:
     code    = attr.ib()
     details = attr.ib()
     summary = attr.ib()
 
 
 # Server error response schema...
-class ErrorResponseSchema(Schema):
+class ErrorSchema(Schema):
 
     # Fields...
     code            = fields.Integer(required=True)
@@ -64,8 +64,8 @@ class ErrorResponseSchema(Schema):
 
     # Callback to receive dictionary of deserialized data...
     @post_load
-    def make_error_response(self, data, **kwargs):
-        return ErrorResponse(**data)
+    def make_error(self, data, **kwargs):
+        return Error(**data)
 
 
 # Disk field of on server status request response...
@@ -75,6 +75,7 @@ class ServerDiskStatus:
     client_store_upload_directory  = attr.ib()
     available                      = attr.ib()
     capacity                       = attr.ib()
+
 
 # Disk field of on server status request response schema...
 class ServerDiskStatusSchema(Schema):
@@ -93,7 +94,7 @@ class ServerDiskStatusSchema(Schema):
 
 # Server status response...
 @attr.s
-class ServerStatusResponse:
+class ServerStatus:
     algorithm_age   = attr.ib()
     built           = attr.ib()
     disk            = attr.ib()
@@ -106,7 +107,7 @@ class ServerStatusResponse:
 
 
 # Server status response schema...
-class ServerStatusResponseSchema(Schema):
+class ServerStatusSchema(Schema):
 
     # Fields...
     algorithm_age   = fields.Integer(required=True)
@@ -121,6 +122,6 @@ class ServerStatusResponseSchema(Schema):
 
     # Callback to receive dictionary of deserialized data...
     @post_load
-    def make_server_status_response(self, data, **kwargs):
-        return ServerStatusResponse(**data)
+    def make_server_status(self, data, **kwargs):
+        return ServerStatus(**data)
 

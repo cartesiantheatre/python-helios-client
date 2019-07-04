@@ -12,7 +12,7 @@ from marshmallow import Schema, fields, post_load, pre_dump
 import gettext
 _ = gettext.gettext
 
-# New song...
+# New song request...
 @attr.s
 class NewSong(object):
     album       = attr.ib(default=None)
@@ -24,7 +24,8 @@ class NewSong(object):
     title       = attr.ib(default=None)
     year        = attr.ib(default=None)
 
-# New song schema...
+
+# New song schema request...
 class NewSongSchema(Schema):
 
     # Fields...
@@ -42,7 +43,8 @@ class NewSongSchema(Schema):
     def make_new_song(self, data, **kwargs):
         return NewSong(**data)
 
-# Patch song for modifying an existing song...
+
+# Patch song for modifying an existing song request...
 @attr.s
 class PatchSong:
     album       = attr.ib(default=None)
@@ -54,7 +56,8 @@ class PatchSong:
     title       = attr.ib(default=None)
     year        = attr.ib(default=None)
 
-# Patch song schema for modifying an existing song...
+
+# Patch song schema for modifying an existing song request...
 class PatchSongSchema(Schema):
 
     # Fields...
@@ -71,4 +74,29 @@ class PatchSongSchema(Schema):
     @post_load
     def make_patch_song(self, data, **kwargs):
         return PatchSong(**data)
+
+# Similarity search request...
+@attr.s
+class SimilaritySearch(object):
+    similar_file            = attr.ib(default=None)
+    similar_id              = attr.ib(default=None)
+    similar_reference       = attr.ib(default=None)
+    similar_url             = attr.ib(default=None)
+    maximum_results         = attr.ib(default=None)
+
+
+# Similarity search schema request...
+class SimilaritySearchSchema(Schema):
+
+    # Fields...
+    similar_file            = fields.String(allow_none=True)
+    similar_id              = fields.Integer(allow_none=True)
+    similar_reference       = fields.String(allow_none=True)
+    similar_url             = fields.String(allow_none=True)
+    maximum_results         = fields.Integer(allow_none=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_similarity_search(self, data, **kwargs):
+        return SimilaritySearch(**data)
 
