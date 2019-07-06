@@ -14,7 +14,7 @@ import json
 from http.client import HTTPConnection
 from urllib3.exceptions import NewConnectionError, MaxRetryError, ConnectTimeoutError
 import helios
-import helios.chunked_upload
+from helios.chunked_upload import chunked_upload
 from tqdm import tqdm
 
 # i18n...
@@ -51,8 +51,10 @@ class client(object):
 #            requests_log.setLevel(logging.DEBUG)
 #            requests_log.propagate = True
 
-    # Add a new song to your music catalogue...
-    def add_song(self, new_song_dict, store=True):
+    # Add a new song to your music catalogue, optionally store it after
+    #  analysis, and optionally invoke a progress callback of the from
+    #  foo(bytes_read, new_bytes, total_bytes)...
+    def add_song(self, new_song_dict, store=True, progress_callback=None):
 
         # Initialize headers...
         headers                     = self._common_headers
@@ -76,7 +78,9 @@ class client(object):
             method='POST',
             headers=headers,
             query_parameters=query_parameters,
-            data=json.dumps(new_song_dict))
+            data=chunked_upload(
+                data=bytes(json.dumps(new_song_dict), encoding='utf-8'),
+                progress_callback=progress_callback))
 
         # Extract and construct stored song from response...
         try:

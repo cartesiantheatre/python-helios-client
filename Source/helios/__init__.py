@@ -6,6 +6,7 @@
 
 # Import everything in this module...
 from .client import client
+import helios.chunked_upload
 import helios.client
 import helios.exceptions
 import helios.requests

@@ -59,8 +59,10 @@ setup(
     # Options...
     include_package_data=True,
     install_requires=[
+        'argparse',
         'attrs',
         'colorama',
+        'csv',
         'hfilesize',
         'marshmallow',
         'requests',

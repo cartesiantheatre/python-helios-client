@@ -4,11 +4,6 @@
 #   Copyright (C) 2015-2019 Cartesian Theatre. All rights reserved.
 #
 
-# Imports...
-import os
-import sys
-import requests
-
 # i18n...
 import gettext
 _ = gettext.gettext
@@ -16,34 +11,36 @@ _ = gettext.gettext
 # Chunked upload class to allow file upload progress with Requests library...
 class chunked_upload(object):
 
-    # Constructor takes a filename and size of chunk...
-    def __init__(self, filename, chunk_size=8096):
+    # Constructor takes data, size of chunk on each read, and a progress
+    #  callback of the from foo(bytes_read, new_bytes, total_bytes)
+    def __init__(self, data, chunk_size=8096, progress_callback=None):
 
         # Initialize...
-        self._filename      = filename
-        self._chunk_size    = chunk_size
-        self._total_size    = os.path.getsize(filename)
-        self._bytes_read    = 0
+        self._data              = data
+        self._chunk_size        = chunk_size
+        self._total_size        = len(data)
+        self._bytes_read        = 0
+        self._progress_callback = progress_callback
 
     # Iterator method...
     def __iter__(self):
 
-        # Open the file and keep reading data for caller until done...
-        with open(self._filename, 'rb') as file:
-            while True:
+        # Keep reading data for caller until no more...
+        while self._bytes_read < self._total_size:
 
-                # Read a chunk...
-                data = file.read(self._chunk_size)
+            # Read a chunk...
+            chunk = self._data[self._bytes_read:self._bytes_read + self._chunk_size]
 
-                # No more data left...
-                if not data:
-                    break
+            # Update read pointer...
+            self._bytes_read += len(chunk)
 
-                # Update read pointer...
-                self._bytes_read += len(data)
+            # If a progress callback was provided, invoke it...
+            if self._progress_callback:
+                self._progress_callback(
+                    self._bytes_read, len(chunk), self._total_size)
 
-                # Return generator for caller...
-                yield
+            # Return generator for caller of read data...
+            yield chunk
 
     # Length of upload...
     def __len__(self):
