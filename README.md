@@ -1,4 +1,4 @@
-![Helios Logo](https://heliosmusic.io/application/files/4615/2807/9653/Helios-Logo.png "Philadelphia's Magic Gardens")
+![Helios Logo](https://heliosmusic.io/application/files/4615/2807/9653/Helios-Logo.png "Helios Logo")
 
 # Helios Client API (Python 3 Module)
 
@@ -27,3 +27,4 @@ Traditionally, in the absence of such technology, the way this has been done for
 ## Licensing
 
 This Python module is released under the terms of the [LGPL 3.0](https://www.gnu.org/licenses/lgpl-3.0.html) or greater. Copyright (C) 2015-2019 Cartesian Theatre. See [Copying](./Copying) for more information.
+

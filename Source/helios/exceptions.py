@@ -96,6 +96,14 @@ class Unauthorized(ResponseExceptionBase):
         super().__init__(code, details, summary)
 
 
+# Conflict exception on an HTTP 409...
+class Conflict(ResponseExceptionBase):
+
+    # Constructor...
+    def __init__(self, code=None, details=None, summary=None):
+        super().__init__(code, details, summary)
+
+
 # Not found exception on an HTTP 404...
 class NotFound(ResponseExceptionBase):
 

@@ -15,6 +15,7 @@ from http.client import HTTPConnection
 from urllib3.exceptions import NewConnectionError, MaxRetryError, ConnectTimeoutError
 import helios
 from helios.chunked_upload import chunked_upload
+import simplejson
 from tqdm import tqdm
 
 # i18n...
@@ -34,8 +35,17 @@ class client(object):
         self._token     = token
         self._host      = host
         self._port      = port
+        self._session   = requests.Session()
         self._verbose   = verbose
         self._version   = version
+
+        # Make sure host provided...
+        if not host:
+            raise Exception(_('No host provided.'))
+
+        # Make sure port provided...
+        if not port:
+            raise Exception(_('No port provided.'))
 
         # Initialize headers common to all queries...
         self._common_headers                = {}
@@ -285,7 +295,7 @@ class client(object):
         try:
 
             # Make request to server...
-            response = requests.get(url, headers=headers, stream=True)
+            response = self._session.get(url, headers=headers, stream=True)
 
             # Get total size of response body...
             total_size = int(response.headers.get('content-length'))
@@ -401,6 +411,10 @@ class client(object):
         elif code == 404:
             raise helios.exceptions.NotFound(code, details, summary)
 
+        # Conflict exception. Suitable on a 409...
+        elif code == 409:
+            raise helios.exceptions.Conflict(code, details, summary)
+
         # Internal server error exception. Suitable on a 500...
         elif code == 500:
             raise helios.exceptions.InternalServer(code, details, summary)
@@ -431,7 +445,7 @@ class client(object):
 
             # Perform DELETE request if requested...
             if method == 'DELETE':
-                response = requests.delete(
+                response = self._session.delete(
                     url,
                     headers=headers,
                     params=query_parameters,
@@ -439,7 +453,7 @@ class client(object):
 
             # Perform GET request if requested...
             elif method == 'GET':
-                response = requests.get(
+                response = self._session.get(
                     url,
                     headers=headers,
                     params=query_parameters,
@@ -447,7 +461,7 @@ class client(object):
 
             # Perform PATCH request if requested...
             elif method == 'PATCH':
-                response = requests.patch(
+                response = self._session.patch(
                     url,
                     headers=headers,
                     params=query_parameters,
@@ -455,7 +469,7 @@ class client(object):
 
             # Perform POST request if requested...
             elif method == 'POST':
-                response = requests.post(
+                response = self._session.post(
                     url,
                     headers=headers,
                     params=query_parameters,
@@ -475,8 +489,15 @@ class client(object):
                 _(f'Unable to connect to {self._host}:{self._port}'))
 
         # Server reported an error, raise appropriate exception...
-        except requests.HTTPError as ServerError:
-            self._raise_http_exception(ServerError.response.json())
+        except requests.HTTPError as serverException:
+            try:
+                json_response = serverException.response.json()
+            except simplejson.errors.JSONDecodeError:
+                raise helios.exceptions.ResponseExceptionBase(
+                    code=serverException.response.status_code,
+                    details=F'Server response had no JSON body, but code {serverException.response.status_code}.',
+                    summary=F'Server response had no JSON body, but code {serverException.response.status_code}.')
+            self._raise_http_exception(serverException.response.json())
 
         # Return the response object...
         return response

@@ -57,21 +57,23 @@ setup(
     version='0.1.dev20190629',
 
     # Options...
+    # TODO: Many of these dependencies are for utilities package only, not
+    #  client.
     include_package_data=True,
     install_requires=[
         'argparse',
         'attrs',
         'colorama',
-        'csv',
         'hfilesize',
         'marshmallow',
         'requests',
         'termcolor',
-        'tqdm'
+        'tqdm >= 4.32.2',
+        'zeroconf'
     ],
     package_dir={'': 'Source'},
     packages=find_namespace_packages(where='Source'),
-    python_requires='>= 3.*',
+    python_requires='>= 3.7',
     zip_safe=True
 )
 

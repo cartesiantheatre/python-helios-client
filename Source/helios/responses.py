@@ -97,6 +97,7 @@ class ServerDiskStatusSchema(Schema):
 class ServerStatus:
     algorithm_age   = attr.ib()
     built           = attr.ib()
+    cores           = attr.ib()
     disk            = attr.ib()
     configured      = attr.ib()
     encoding        = attr.ib()
@@ -112,6 +113,7 @@ class ServerStatusSchema(Schema):
     # Fields...
     algorithm_age   = fields.Integer(required=True)
     built           = fields.DateTime(required=True, format='rfc')
+    cores           = fields.Integer(required=True)
     disk            = fields.Nested(ServerDiskStatusSchema(), required=True)
     configured      = fields.String(required=True)
     encoding        = fields.String(required=True)
