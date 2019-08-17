@@ -17,7 +17,7 @@ Build-Depends:
     python3-marshmallow,
     python3-requests,
     python3-setuptools,
-    python3-tqdm (>= 4.32.2),
+    python3-tqdm,
     python3-zeroconf
 Homepage: https://www.heliosmusic.io
 Vcs-Git: https://www.github.com/cartesiantheatre/python-helios-client.git

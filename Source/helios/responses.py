@@ -68,7 +68,47 @@ class ErrorSchema(Schema):
         return Error(**data)
 
 
-# Disk field of on server status request response...
+# CPU load status field of server CPU status request response...
+@attr.s
+class ServerCPULoadStatus:
+    all                            = attr.ib()
+    individual                     = attr.ib()
+
+
+# CPU load status field of server CPU status request response schema...
+class ServerCPULoadStatusSchema(Schema):
+
+    # Fields...
+    all                            = fields.Integer(required=True)
+    individual                     = fields.List(fields.Float(), required=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_server_cpu_load_status(self, data, **kwargs):
+        return ServerCPULoadStatus(**data)
+
+
+# CPU status field of server status request response...
+@attr.s
+class ServerCPUStatus:
+    cores                          = attr.ib()
+    load                           = attr.ib()
+
+
+# CPU status of server status request response schema...
+class ServerCPUStatusSchema(Schema):
+
+    # Fields...
+    cores                           = fields.Integer(required=True)
+    load                            = fields.Nested(ServerCPULoadStatusSchema(), required=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_server_cpu_status(self, data, **kwargs):
+        return ServerCPUStatus(**data)
+
+
+# Disk field of server status request response...
 @attr.s
 class ServerDiskStatus:
     client_store_upload            = attr.ib()
@@ -77,7 +117,7 @@ class ServerDiskStatus:
     capacity                       = attr.ib()
 
 
-# Disk field of on server status request response schema...
+# Disk field of server status request response schema...
 class ServerDiskStatusSchema(Schema):
 
     # Fields...
@@ -97,9 +137,9 @@ class ServerDiskStatusSchema(Schema):
 class ServerStatus:
     algorithm_age   = attr.ib()
     built           = attr.ib()
-    cores           = attr.ib()
-    disk            = attr.ib()
     configured      = attr.ib()
+    cpu             = attr.ib()
+    disk            = attr.ib()
     encoding        = attr.ib()
     songs           = attr.ib()
     system          = attr.ib()
@@ -113,9 +153,9 @@ class ServerStatusSchema(Schema):
     # Fields...
     algorithm_age   = fields.Integer(required=True)
     built           = fields.DateTime(required=True, format='rfc')
-    cores           = fields.Integer(required=True)
-    disk            = fields.Nested(ServerDiskStatusSchema(), required=True)
     configured      = fields.String(required=True)
+    cpu             = fields.Nested(ServerCPUStatusSchema(), required=True)
+    disk            = fields.Nested(ServerDiskStatusSchema(), required=True)
     encoding        = fields.String(required=True)
     songs           = fields.Integer(required=True)
     system          = fields.String(required=True)

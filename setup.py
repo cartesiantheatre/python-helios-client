@@ -49,12 +49,12 @@ setup(
     long_description=get_long_description(),
     name='helios-client',
     project_urls={
-        'Bug Tracker': 'https://github.com/cartesiantheatre/python3-helios-client/issues',
+        'Bug Tracker': 'https://github.com/cartesiantheatre/python-helios-client/issues',
         'Documentation': 'https://heliosmusic.io/api.html',
-        'Source Code': 'https://github.com/cartesiantheatre/python3-helios-client'
+        'Source Code': 'https://github.com/cartesiantheatre/python-helios-client'
     },
     url='https://www.heliosmusic.io',
-    version='0.1.dev20190629',
+    version='0.1.dev20190816',
 
     # Options...
     # TODO: Many of these dependencies are for utilities package only, not
@@ -68,7 +68,7 @@ setup(
         'marshmallow',
         'requests',
         'termcolor',
-        'tqdm >= 4.32.2',
+        'tqdm',
         'zeroconf'
     ],
     package_dir={'': 'Source'},
