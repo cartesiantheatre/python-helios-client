@@ -6,22 +6,23 @@
 
 # Imports...
 import attr
+import datetime
 from marshmallow import Schema, fields, post_load
 
 # Stored song response after adding, modifying, or retrieving a song...
 @attr.s
 class StoredSong:
-    album           = attr.ib()
-    algorithm_age   = attr.ib()
-    artist          = attr.ib()
-    duration        = attr.ib()
-    genre           = attr.ib()
-    id              = attr.ib()
-    isrc            = attr.ib()
-    location        = attr.ib()
-    reference       = attr.ib()
-    title           = attr.ib()
-    year            = attr.ib()
+    album           = attr.ib(validator=attr.validators.instance_of(str))
+    algorithm_age   = attr.ib(validator=attr.validators.instance_of(int))
+    artist          = attr.ib(validator=attr.validators.instance_of(str))
+    duration        = attr.ib(validator=attr.validators.instance_of(int))
+    genre           = attr.ib(validator=attr.validators.instance_of(str))
+    id              = attr.ib(validator=attr.validators.instance_of(int))
+    isrc            = attr.ib(validator=attr.validators.instance_of(str))
+    location        = attr.ib(validator=attr.validators.instance_of(str))
+    reference       = attr.ib(validator=attr.validators.instance_of(str))
+    title           = attr.ib(validator=attr.validators.instance_of(str))
+    year            = attr.ib(validator=attr.validators.instance_of(int))
 
 
 # Stored song response schema after adding, modifying, or retrieving a song...
@@ -49,9 +50,9 @@ class StoredSongSchema(Schema):
 # Server error response...
 @attr.s
 class Error:
-    code    = attr.ib()
-    details = attr.ib()
-    summary = attr.ib()
+    code    = attr.ib(validator=attr.validators.instance_of(int))
+    details = attr.ib(validator=attr.validators.instance_of(str))
+    summary = attr.ib(validator=attr.validators.instance_of(str))
 
 
 # Server error response schema...
@@ -71,7 +72,7 @@ class ErrorSchema(Schema):
 # CPU load status field of server CPU status request response...
 @attr.s
 class ServerCPULoadStatus:
-    all                            = attr.ib()
+    all                            = attr.ib(validator=attr.validators.instance_of(float))
     individual                     = attr.ib()
 
 
@@ -79,7 +80,7 @@ class ServerCPULoadStatus:
 class ServerCPULoadStatusSchema(Schema):
 
     # Fields...
-    all                            = fields.Integer(required=True)
+    all                            = fields.Float(required=True)
     individual                     = fields.List(fields.Float(), required=True)
 
     # Callback to receive dictionary of deserialized data...
@@ -91,7 +92,7 @@ class ServerCPULoadStatusSchema(Schema):
 # CPU status field of server status request response...
 @attr.s
 class ServerCPUStatus:
-    cores                          = attr.ib()
+    cores                          = attr.ib(validator=attr.validators.instance_of(int))
     load                           = attr.ib()
 
 
@@ -111,10 +112,10 @@ class ServerCPUStatusSchema(Schema):
 # Disk field of server status request response...
 @attr.s
 class ServerDiskStatus:
-    client_store_upload            = attr.ib()
-    client_store_upload_directory  = attr.ib()
-    available                      = attr.ib()
-    capacity                       = attr.ib()
+    client_store_upload            = attr.ib(validator=attr.validators.instance_of(bool))
+    client_store_upload_directory  = attr.ib(default='', validator=attr.validators.optional(attr.validators.instance_of(str)))
+    available                      = attr.ib(default=0, validator=attr.validators.optional(attr.validators.instance_of(int)))
+    capacity                       = attr.ib(default=0, validator=attr.validators.optional(attr.validators.instance_of(int)))
 
 
 # Disk field of server status request response schema...
@@ -122,9 +123,9 @@ class ServerDiskStatusSchema(Schema):
 
     # Fields...
     client_store_upload             = fields.Bool(required=True)
-    client_store_upload_directory   = fields.String(required=True)
-    available                       = fields.Integer(required=True)
-    capacity                        = fields.Integer(required=True)
+    client_store_upload_directory   = fields.String(required=False)
+    available                       = fields.Integer(required=False)
+    capacity                        = fields.Integer(required=False)
 
     # Callback to receive dictionary of deserialized data...
     @post_load
@@ -135,16 +136,16 @@ class ServerDiskStatusSchema(Schema):
 # Server status response...
 @attr.s
 class ServerStatus:
-    algorithm_age   = attr.ib()
-    built           = attr.ib()
-    configured      = attr.ib()
+    algorithm_age   = attr.ib(validator=attr.validators.instance_of(int))
+    built           = attr.ib(validator=attr.validators.instance_of(datetime.datetime))
+    configured      = attr.ib(validator=attr.validators.instance_of(str))
     cpu             = attr.ib()
     disk            = attr.ib()
-    encoding        = attr.ib()
-    songs           = attr.ib()
-    system          = attr.ib()
-    uptime          = attr.ib()
-    version         = attr.ib()
+    encoding        = attr.ib(validator=attr.validators.instance_of(str))
+    songs           = attr.ib(validator=attr.validators.instance_of(int))
+    system          = attr.ib(validator=attr.validators.instance_of(str))
+    uptime          = attr.ib(validator=attr.validators.instance_of(int))
+    version         = attr.ib(validator=attr.validators.instance_of(str))
 
 
 # Server status response schema...
