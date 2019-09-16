@@ -1,0 +1,10 @@
+#
+#   Helios.
+#   Copyright (C) 2015-2019 Cartesian Theatre. All rights reserved.
+#
+
+# Functional test to API is installed and available...
+Tests: test-helios-module-import.py
+Depends: python3-helios-client
+Restrictions: isolation-container
+

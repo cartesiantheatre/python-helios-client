@@ -505,5 +505,5 @@ class client(object):
 
 # Get client version...
 def get_version():
-    return '0.1'
+    return '0.3'
 

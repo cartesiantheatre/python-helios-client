@@ -54,7 +54,7 @@ setup(
         'Source Code': 'https://github.com/cartesiantheatre/python-helios-client'
     },
     url='https://www.heliosmusic.io',
-    version='0.1.dev20190816',
+    version='0.3.dev20190915',
 
     # Options...
     # TODO: Many of these dependencies are for utilities package only, not
@@ -64,9 +64,9 @@ setup(
         'argparse',
         'attrs',
         'colorama',
-        'hfilesize',
         'marshmallow',
         'requests',
+        'simplejson',
         'termcolor',
         'tqdm',
         'zeroconf'
