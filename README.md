@@ -1,6 +1,6 @@
 ![Helios Logo](https://heliosmusic.io/application/files/4615/2807/9653/Helios-Logo.png "Helios Logo")
 
-# Helios Client API (Python 3 Module)
+# Helios Client API (Pure Python 3 Module)
 
 This is an easy to use pure Python 3 module that provides an API to communicate with a remote [Helios](https://www.heliosmusic.io) server. You can manage your music catalogue as well as perform similarity matches. You can review the raw REST API documentation [here](https://www.heliosmusic.io/api.html).
 
@@ -23,6 +23,23 @@ Helios is a powerful B2B technology to allow searching of large commercial music
 There are countless other examples, but let's talk about the first one. Nearly always, your client approaches you with samples already in hand. "Hey, do you have anything like this?" This could be an MP3 or a YouTube video URL. Because Helios allows you to search the catalogue using music itself as the search key, you could use the customer's samples directly to help them find what they're looking for.
 
 Traditionally, in the absence of such technology, the way this has been done for decades may surprise many. It is both costly and involves many hours or even days of manual human labour which delays the business process. The business must manually search, usually using [textual tags](https://heliosmusic.io/index.php/faq#tagging), and listen to a great deal of irrelevant music in the hopes of finding the one the client is actually willing to spend money on.
+
+## Quick installation
+
+### Ubuntu
+Packages already prepared for Ubuntu 19.04 (disco) and later are available on our Personal Package Archive (PPA) [here](https://launchpad.net/%7Ekip/+archive/ubuntu/helios-public). To get the package installed and be up and running in seconds, just run the following two commands:
+
+```console
+$ sudo add-apt-repository ppa:kip/helios-public
+$ sudo apt install python3-helios-client
+```
+
+### PyPi
+If you are not using Ubuntu 19.04 or later and know what you are doing, you can use Python's ad hoc package manaement system. This is not recommended as a first choice because it is not as robust as a native package manager.
+
+```console
+$ pip install helios-client
+```
 
 ## Licensing
 

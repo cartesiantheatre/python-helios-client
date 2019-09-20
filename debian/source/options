@@ -1,1 +1,2 @@
-extend-diff-ignore = "Source/helios_client.egg-info/|.git/|PKG_INFO|.eggs/"
+extend-diff-ignore = "(^|/)(Source/\.egg-info|\.git|\.eggs)$"
+

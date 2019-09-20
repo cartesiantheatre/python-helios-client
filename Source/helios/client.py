@@ -17,6 +17,7 @@ import helios
 from helios.chunked_upload import chunked_upload
 import simplejson
 from tqdm import tqdm
+from helios import __version__
 
 # i18n...
 import gettext
@@ -505,5 +506,5 @@ class client(object):
 
 # Get client version...
 def get_version():
-    return '0.3'
+    return __version__.version
 

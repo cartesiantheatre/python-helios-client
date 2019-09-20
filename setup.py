@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 #
 #   Helios, intelligent music.
 #   Copyright (C) 2015-2019 Cartesian Theatre. All rights reserved.
@@ -7,6 +6,7 @@
 # Import modules...
 from __future__ import with_statement
 from setuptools import setup, find_namespace_packages
+import importlib.util
 import os
 import sys
 
@@ -20,6 +20,21 @@ def get_long_description():
     with open('README.md') as file:
         long_description.append(file.read())
     return '\n\n'.join(long_description)
+
+# Read the module version directly out of the source...
+def get_version():
+
+    # Path to file containing version string...
+    version_file = None
+
+    # Load the version module...
+    spec = importlib.util.spec_from_file_location('__version__', 'Source/helios/__version__.py')
+    spec.cached = None # Doesn't work
+    version_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(version_module)
+
+    # Return the version string...
+    return version_module.version
 
 # Provide setup parameters for package...
 setup(
@@ -35,12 +50,14 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3 :: Only',
+        'Topic :: Database :: Database Engines/Servers',
         'Topic :: Internet',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
         'Topic :: Multimedia :: Sound/Audio',
         'Topic :: Multimedia :: Sound/Audio :: Analysis',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Scientific/Engineering :: Physics',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     description='Pure python 3 module to communicate with a Helios server.',
@@ -54,22 +71,16 @@ setup(
         'Source Code': 'https://github.com/cartesiantheatre/python-helios-client'
     },
     url='https://www.heliosmusic.io',
-    version='0.3.dev20190915',
+    version=get_version(),
 
     # Options...
-    # TODO: Many of these dependencies are for utilities package only, not
-    #  client.
     include_package_data=True,
     install_requires=[
-        'argparse',
         'attrs',
-        'colorama',
         'marshmallow',
         'requests',
         'simplejson',
-        'termcolor',
-        'tqdm',
-        'zeroconf'
+        'tqdm'
     ],
     package_dir={'': 'Source'},
     packages=find_namespace_packages(where='Source'),

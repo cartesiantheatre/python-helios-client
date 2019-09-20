@@ -8,7 +8,7 @@
 DH_VERBOSE = 1
 export DH_OPTIONS=-v
 
-# Set pybuild package name...
+# Tell pybuild the name of our module...
 export PYBUILD_NAME=helios_client
 
 # Standard rules and preset shell variables...
@@ -33,34 +33,40 @@ PACKAGE_BUILD = $(PACKAGE_DIR)/$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM)
 # We need to override debhelper's clean hook because setuptools leave egg-info
 #  stuff laying around which otherwise would have modified the source package...
 #  <https://blog-archive.copyninja.info/2011/02/tutorial-python-module-packaging-for-debian.html>
+#  We also need to cleanup the byte code cache because setup.py's module load of
+#  the __version__ module leaves an artifact of __version__.py's byte code...
 override_dh_clean:
-	$(SOURCE_DIR)/setup.py clean --all
+	@python3 $(SOURCE_DIR)/setup.py clean --all
 	dh_clean
-	$(RM) -v $(SOURCE_DIR)/PKG-INFO
-#	$(RM) -rv $(SOURCE_DIR)/Source/$(PYBUILD_NAME).egg-info
-#	$(RM) -rv $(SOURCE_DIR)/.eggs
-#	$(RM) -rv $(SOURCE_DIR)/dist
-#	$(RM) -rv $(PACKAGE_BUILD)
+	@$(RM) -rv $(SOURCE_DIR)/Source/helios/__pycache__/
+	$(RM) -rv $(SOURCE_DIR)/Source/$(PYBUILD_NAME).egg-info
+	$(RM) -rv $(SOURCE_DIR)/.eggs
+	$(RM) -rv $(SOURCE_DIR)/dist
+	@$(RM) -rv $(PACKAGE_BUILD)
 
 # Prepare an upstream vanilla distribution tarball as per DPM § 4.9...
 #  http://wiki.debian.org/onlyjob/get-orig-source
 get-orig-source: $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.bz2 $(info I: $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM))
-	@
+	@mv -v $(PACKAGE_BUILD)/`python3 $(SOURCE_DIR)/setup.py --fullname`.tar.bz2 $(SOURCE_DIR)/../$<
+	@$(RM) -rv $(PACKAGE_BUILD)
+
+# PKG-INFO is a bullshit derived file defined by PEP 314 that forces us to
+#  violate the principal of keeping the source tree pristine and free of derived
+#  files. It needs to be in the source tree when the Debianized source package
+#  is built because setuptools adds it to orig tarball. The orig and patched
+#  trees need to be identical or dpkg-source will raise a warning...
 
 # Prepare an upstream vanilla distribution tarball...
 $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.bz2:
 	@echo "# Preparing source for $(DEB_SOURCE) $(DEB_VERSION_UPSTREAM)..."
-	$(SOURCE_DIR)/setup.py check
-	mkdir -v $(PACKAGE_BUILD)                                                   \
+	@python3 $(SOURCE_DIR)/setup.py check
+	@mkdir -v $(PACKAGE_BUILD)                                                  \
 	&& cd $(PACKAGE_BUILD)                                                      \
-	&& $(SOURCE_DIR)/setup.py sdist                                             \
+	&& python3 $(SOURCE_DIR)/setup.py sdist                                     \
 	    --formats=bztar                                                         \
-	    --dist-dir=$(PACKAGE_DIR)/$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM)         \
-	    egg_info --egg-base=$(PACKAGE_BUILD)                                    \
-	&& mv -v `$(SOURCE_DIR)/setup.py --fullname`.tar.bz2 $(SOURCE_DIR)/../$@
-	@echo "# Cleaning up..."
-	$(RM) -rv $(SOURCE_DIR)/Source/$(PYBUILD_NAME).egg-info
-	$(RM) -rv $(PACKAGE_BUILD)
+	    --dist-dir=$(PACKAGE_BUILD)                                             \
+	    egg_info --egg-base=$(PACKAGE_BUILD)
+	@cp -v $(PACKAGE_BUILD)/*.egg-info/PKG-INFO .
 
 # Targets which aren't actually files...
 .PHONY: get-orig-source override_dh_clean
