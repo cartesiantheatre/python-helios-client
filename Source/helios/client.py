@@ -30,10 +30,10 @@ class client(object):
     _json_mime_type  = 'application/json'
 
     # Constructor...
-    def __init__(self, host, port=6440, token=None, verbose=False, version='v1'):
+    def __init__(self, host, port=6440, key=None, verbose=False, version='v1'):
 
         # Initialize...
-        self._token     = token
+        self._key       = key
         self._host      = host
         self._port      = port
         self._session   = requests.Session()
@@ -50,7 +50,7 @@ class client(object):
 
         # Initialize headers common to all queries...
         self._common_headers                = {}
-        self._common_headers['X-API-Token'] = self._token
+        self._common_headers['X-API-Key']   = self._key
         self._common_headers['User-Agent']  = F'helios-python {get_version()}'
 
         # If verbosity is enabled, toggle in requests and http client libraries...

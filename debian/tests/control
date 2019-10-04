@@ -9,8 +9,8 @@ Depends: python3-helios-client
 Restrictions: isolation-container
 
 # Unit test to verify API is working correctly with a live server. Since
-#  containers may not necessarily have network access, we'll use a sample song
-#  from Pronobozo contained within Lincity's data package...
+#  containers may not necessarily have network access, we'll some sample songs
+#  from Lincity's data package...
 Tests: test-module-usage.py
 Depends: python3-helios-client, helios-server, lincity-ng-data
 Restrictions: isolation-container
