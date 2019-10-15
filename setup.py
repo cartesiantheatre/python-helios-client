@@ -76,8 +76,8 @@ setup(
     # Options...
     include_package_data=True,
     install_requires=[
-        'attrs',
-        'marshmallow',
+        'attrs >= 18.2.0',
+        'marshmallow >= 3.0.0',
         'requests',
         'simplejson',
         'tqdm'
