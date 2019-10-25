@@ -12,6 +12,7 @@ import marshmallow
 import logging
 import json
 from http.client import HTTPConnection
+import urllib3
 from urllib3.exceptions import NewConnectionError, MaxRetryError, ConnectTimeoutError
 import helios
 from helios.chunked_upload import chunked_upload
@@ -30,15 +31,19 @@ class client(object):
     _json_mime_type  = 'application/json'
 
     # Constructor...
-    def __init__(self, host, port=6440, key=None, verbose=False, version='v1'):
+    def __init__(self, host, port=6440, api_key=None, tls=True, tls_ca_file=None, tls_certificate=None, tls_key=None, verbose=False, version='v1'):
 
         # Initialize...
-        self._key       = key
-        self._host      = host
-        self._port      = port
-        self._session   = requests.Session()
-        self._verbose   = verbose
-        self._version   = version
+        self._session           = requests.Session()
+        self._host              = host
+        self._port              = port
+        self._api_key           = api_key
+        self._tls               = tls
+        self._tls_ca_file       = tls_ca_file
+        self._tls_certificate   = tls_certificate
+        self._tls_key           = tls_key
+        self._verbose           = verbose
+        self._version           = version
 
         # Make sure host provided...
         if not host:
@@ -50,7 +55,7 @@ class client(object):
 
         # Initialize headers common to all queries...
         self._common_headers                = {}
-        self._common_headers['X-API-Key']   = self._key
+        self._common_headers['X-API-Key']   = self._api_key
         self._common_headers['User-Agent']  = F'helios-python {get_version()}'
 
         # If verbosity is enabled, toggle in requests and http client libraries...
@@ -169,8 +174,14 @@ class client(object):
         endpoint = endpoint.rstrip('/')
         endpoint = endpoint.lstrip('/')
 
-        # Construct API URL...
-        url = f'http://{self._host}:{self._port}/{self._version}/{endpoint}/'
+        # Construct protocol portion of API url...
+        if self._tls:
+            url = 'https://'
+        else:
+            url = 'http://'
+
+        # Construct rest of URL to endpoint...
+        url += f'{self._host}:{self._port}/{self._version}/{endpoint}/'
 
         # Show verbosity hint...
         if self._verbose:
@@ -292,11 +303,40 @@ class client(object):
         headers             = self._common_headers
         headers['Accept']   = 'application/octet-stream'
 
+        # Flag to requests on whether to verify server certificate. This can be
+        #  either a boolean or a string according to documentation...
+        verify = False
+
+        # Tuple to public and private keys, if set...
+        public_private_key = None
+
+        # TLS was requested, so prepare to use associated settings...
+        if self._tls:
+
+            # If no certificate authority was provided, disable server
+            #  certificate verification...
+            if not self._tls_ca_file:
+                verify = False
+                urllib3.disable_warnings()
+
+            # Otherwise set to path to certificate authority file...
+            else:
+                verify = self._tls_ca_file
+
+            # Set certificate public and private key, if provided...
+            if self._tls_certificate or self._tls_key:
+                public_private_key = (self._tls_certificate, self._tls_key)
+
         # Try to download...
         try:
 
             # Make request to server...
-            response = self._session.get(url, headers=headers, stream=True)
+            response = self._session.get(
+                url,
+                headers=headers,
+                stream=True,
+                verify=verify,
+                cert=public_private_key)
 
             # Get total size of response body...
             total_size = int(response.headers.get('content-length'))
@@ -441,6 +481,30 @@ class client(object):
         # Get the base URL...
         url = self._get_endpoint_url(endpoint)
 
+        # Flag to requests on whether to verify server certificate. This can be
+        #  either a boolean or a string according to documentation...
+        verify = False
+
+        # Tuple to public and private keys, if set...
+        public_private_key = None
+
+        # TLS was requested, so prepare to use associated settings...
+        if self._tls:
+
+            # If no certificate authority was provided, disable server
+            #  certificate verification...
+            if not self._tls_ca_file:
+                verify = False
+                urllib3.disable_warnings()
+
+            # Otherwise set to path to certificate authority file...
+            else:
+                verify = self._tls_ca_file
+
+            # Set certificate public and private key, if provided...
+            if self._tls_certificate or self._tls_key:
+                public_private_key = (self._tls_certificate, self._tls_key)
+
         # Try to submit request to server using appropriate HTTP verb...
         try:
 
@@ -450,7 +514,9 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    data=data)
+                    data=data,
+                    verify=verify,
+                    cert=public_private_key)
 
             # Perform GET request if requested...
             elif method == 'GET':
@@ -458,7 +524,9 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    data=data)
+                    data=data,
+                    verify=verify,
+                    cert=public_private_key)
 
             # Perform PATCH request if requested...
             elif method == 'PATCH':
@@ -466,7 +534,9 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    data=data)
+                    data=data,
+                    verify=verify,
+                    cert=public_private_key)
 
             # Perform POST request if requested...
             elif method == 'POST':
@@ -474,7 +544,9 @@ class client(object):
                     url,
                     headers=headers,
                     params=query_parameters,
-                    data=data)
+                    data=data,
+                    verify=verify,
+                    cert=public_private_key)
 
             # Unknown method...
             else:

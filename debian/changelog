@@ -1,3 +1,9 @@
+python-helios-client (0.3-git20191024-ct1) disco; urgency=medium
+
+  * Version 0.3-git20191024.
+
+ -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Wed, 24 Oct 2019 19:04:00 -0700
+
 python-helios-client (0.3-git20191014-ct1) disco; urgency=medium
 
   * Version 0.3-git20191014.

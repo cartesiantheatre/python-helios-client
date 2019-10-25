@@ -144,6 +144,7 @@ class ServerStatus:
     encoding        = attr.ib(validator=attr.validators.instance_of(str))
     songs           = attr.ib(validator=attr.validators.instance_of(int))
     system          = attr.ib(validator=attr.validators.instance_of(str))
+    tls             = attr.ib(validator=attr.validators.instance_of(bool))
     uptime          = attr.ib(validator=attr.validators.instance_of(int))
     version         = attr.ib(validator=attr.validators.instance_of(str))
 
@@ -160,6 +161,7 @@ class ServerStatusSchema(Schema):
     encoding        = fields.String(required=True)
     songs           = fields.Integer(required=True)
     system          = fields.String(required=True)
+    tls             = fields.Bool(required=True)
     uptime          = fields.Integer(required=True)
     version         = fields.String(required=True)
 
