@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: helios-client
-Version: 0.3.dev20191024
+Version: 0.3.dev20191113
 Summary: Pure python 3 module to communicate with a Helios server.
 Home-page: https://www.heliosmusic.io
 Author: Cartesian Theatre

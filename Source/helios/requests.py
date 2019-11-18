@@ -15,28 +15,30 @@ _ = gettext.gettext
 # New song request...
 @attr.s
 class NewSong(object):
-    album       = attr.ib(default=None)
-    artist      = attr.ib(default=None)
-    file        = attr.ib(default=None)
-    genre       = attr.ib(default=None)
-    isrc        = attr.ib(default=None)
-    reference   = attr.ib(default=None)
-    title       = attr.ib(default=None)
-    year        = attr.ib(default=None)
+    album               = attr.ib(default=None)
+    artist              = attr.ib(default=None)
+    beats_per_minute    = attr.ib(default=None)
+    file                = attr.ib(default=None)
+    genre               = attr.ib(default=None)
+    isrc                = attr.ib(default=None)
+    reference           = attr.ib(default=None)
+    title               = attr.ib(default=None)
+    year                = attr.ib(default=None)
 
 
 # New song schema request...
 class NewSongSchema(Schema):
 
     # Fields...
-    album       = fields.String(allow_none=True)
-    artist      = fields.String(allow_none=True)
-    file        = fields.String(allow_none=False, required=True)
-    genre       = fields.String(allow_none=True)
-    isrc        = fields.String(allow_none=True)
-    reference   = fields.String(allow_none=False, required=True)
-    title       = fields.String(allow_none=True)
-    year        = fields.Integer(allow_none=True)
+    album               = fields.String(allow_none=True)
+    artist              = fields.String(allow_none=True)
+    beats_per_minute    = fields.Float(allow_none=True)
+    file                = fields.String(allow_none=False, required=True)
+    genre               = fields.String(allow_none=True)
+    isrc                = fields.String(allow_none=True)
+    reference           = fields.String(allow_none=False, required=True)
+    title               = fields.String(allow_none=True)
+    year                = fields.Integer(allow_none=True)
 
     # Callback to receive dictionary of deserialized data...
     @post_load
@@ -47,28 +49,30 @@ class NewSongSchema(Schema):
 # Patch song for modifying an existing song request...
 @attr.s
 class PatchSong:
-    album       = attr.ib(default=None)
-    artist      = attr.ib(default=None)
-    file        = attr.ib(default=None)
-    genre       = attr.ib(default=None)
-    isrc        = attr.ib(default=None)
-    reference   = attr.ib(default=None)
-    title       = attr.ib(default=None)
-    year        = attr.ib(default=None)
+    album               = attr.ib(default=None)
+    artist              = attr.ib(default=None)
+    beats_per_minute    = attr.ib(default=None)
+    file                = attr.ib(default=None)
+    genre               = attr.ib(default=None)
+    isrc                = attr.ib(default=None)
+    reference           = attr.ib(default=None)
+    title               = attr.ib(default=None)
+    year                = attr.ib(default=None)
 
 
 # Patch song schema for modifying an existing song request...
 class PatchSongSchema(Schema):
 
     # Fields...
-    album           = fields.String(allow_none=True)
-    artist          = fields.String(allow_none=True)
-    file            = fields.String(allow_none=True)
-    genre           = fields.String(allow_none=True)
-    isrc            = fields.String(allow_none=True)
-    reference       = fields.String(allow_none=True)
-    title           = fields.String(allow_none=True)
-    year            = fields.Integer(allow_none=True)
+    album               = fields.String(allow_none=True)
+    artist              = fields.String(allow_none=True)
+    beats_per_minute    = fields.Float(allow_none=True)
+    file                = fields.String(allow_none=True)
+    genre               = fields.String(allow_none=True)
+    isrc                = fields.String(allow_none=True)
+    reference           = fields.String(allow_none=True)
+    title               = fields.String(allow_none=True)
+    year                = fields.Integer(allow_none=True)
 
     # Callback to receive dictionary of deserialized data...
     @post_load

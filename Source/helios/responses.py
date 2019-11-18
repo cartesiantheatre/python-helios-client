@@ -7,39 +7,46 @@
 # Imports...
 import attr
 import datetime
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 
 # Stored song response after adding, modifying, or retrieving a song...
 @attr.s
 class StoredSong:
-    album           = attr.ib(validator=attr.validators.instance_of(str))
-    algorithm_age   = attr.ib(validator=attr.validators.instance_of(int))
-    artist          = attr.ib(validator=attr.validators.instance_of(str))
-    duration        = attr.ib(validator=attr.validators.instance_of(int))
-    genre           = attr.ib(validator=attr.validators.instance_of(str))
-    id              = attr.ib(validator=attr.validators.instance_of(int))
-    isrc            = attr.ib(validator=attr.validators.instance_of(str))
-    location        = attr.ib(validator=attr.validators.instance_of(str))
-    reference       = attr.ib(validator=attr.validators.instance_of(str))
-    title           = attr.ib(validator=attr.validators.instance_of(str))
-    year            = attr.ib(validator=attr.validators.instance_of(int))
+    album               = attr.ib(validator=attr.validators.instance_of(str))
+    algorithm_age       = attr.ib(validator=attr.validators.instance_of(int))
+    artist              = attr.ib(validator=attr.validators.instance_of(str))
+    beats_per_minute    = attr.ib(validator=attr.validators.instance_of(float))
+    duration            = attr.ib(validator=attr.validators.instance_of(int))
+    genre               = attr.ib(validator=attr.validators.instance_of(str))
+    id                  = attr.ib(validator=attr.validators.instance_of(int))
+    isrc                = attr.ib(validator=attr.validators.instance_of(str))
+    location            = attr.ib(validator=attr.validators.instance_of(str))
+    reference           = attr.ib(validator=attr.validators.instance_of(str))
+    title               = attr.ib(validator=attr.validators.instance_of(str))
+    year                = attr.ib(validator=attr.validators.instance_of(int))
 
 
 # Stored song response schema after adding, modifying, or retrieving a song...
 class StoredSongSchema(Schema):
 
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
+
     # Fields...
-    album           = fields.String(required=True)
-    algorithm_age   = fields.Integer(required=True)
-    artist          = fields.String(required=True)
-    duration        = fields.Integer(required=True)
-    genre           = fields.String(required=True)
-    id              = fields.Integer(required=True)
-    isrc            = fields.String(required=True)
-    location        = fields.String(required=True)
-    reference       = fields.String(required=True)
-    title           = fields.String(required=True)
-    year            = fields.Integer(required=True)
+    album               = fields.String(required=True)
+    algorithm_age       = fields.Integer(required=True)
+    artist              = fields.String(required=True)
+    beats_per_minute    = fields.Float(required=True)
+    duration            = fields.Integer(required=True)
+    genre               = fields.String(required=True)
+    id                  = fields.Integer(required=True)
+    isrc                = fields.String(required=True)
+    location            = fields.String(required=True)
+    reference           = fields.String(required=True)
+    title               = fields.String(required=True)
+    year                = fields.Integer(required=True)
 
     # Callback to receive dictionary of deserialized data...
     @post_load
@@ -57,6 +64,11 @@ class Error:
 
 # Server error response schema...
 class ErrorSchema(Schema):
+
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
 
     # Fields...
     code            = fields.Integer(required=True)
@@ -79,6 +91,11 @@ class ServerCPULoadStatus:
 # CPU load status field of server CPU status request response schema...
 class ServerCPULoadStatusSchema(Schema):
 
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
+
     # Fields...
     all                            = fields.Float(required=True)
     individual                     = fields.List(fields.Float(), required=True)
@@ -98,6 +115,11 @@ class ServerCPUStatus:
 
 # CPU status of server status request response schema...
 class ServerCPUStatusSchema(Schema):
+
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
 
     # Fields...
     cores                           = fields.Integer(required=True)
@@ -120,6 +142,11 @@ class ServerDiskStatus:
 
 # Disk field of server status request response schema...
 class ServerDiskStatusSchema(Schema):
+
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
 
     # Fields...
     client_store_upload             = fields.Bool(required=True)
@@ -151,6 +178,11 @@ class ServerStatus:
 
 # Server status response schema...
 class ServerStatusSchema(Schema):
+
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
 
     # Fields...
     algorithm_age   = fields.Integer(required=True)
