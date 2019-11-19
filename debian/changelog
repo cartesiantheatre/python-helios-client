@@ -1,8 +1,8 @@
-python-helios-client (0.3-git20191117-ct1) eoan; urgency=medium
+python-helios-client (0.3-git20191118-ct1) eoan; urgency=medium
 
-  * Version 0.3-git20191117.
+  * Version 0.3-git20191118.
 
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Sun, 17 Nov 2019 20:27:03 -0800
+ -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Sun, 18 Nov 2019 14:46:00 -0800
 
 python-helios-client (0.3-git20191024-ct1) eoan; urgency=medium
 
