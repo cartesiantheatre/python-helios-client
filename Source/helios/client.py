@@ -86,7 +86,7 @@ class client(object):
             new_song_schema = helios.requests.NewSongSchema()
             new_song_schema.load(new_song_dict)
         except marshmallow.ValidationError as validationException:
-            raise helios.exceptions.Validation(validationException)
+            raise helios.exceptions.Validation(str(validationException)) from validationException
 
         # Submit request...
         response = self._submit_request(
@@ -105,7 +105,7 @@ class client(object):
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
-            raise helios.exceptions.UnexpectedResponse(someException.messages)
+            raise helios.exceptions.UnexpectedResponse(someException.messages) from someException
 
         # Parse response...
         return stored_song_response
@@ -162,7 +162,7 @@ class client(object):
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
-            raise helios.exceptions.UnexpectedResponse(someException.messages)
+            raise helios.exceptions.UnexpectedResponse(someException.messages) from someException
 
         # Return list of stored songs...
         return all_songs_list
@@ -184,8 +184,8 @@ class client(object):
         url += f'{self._host}:{self._port}/{self._version}/{endpoint}/'
 
         # Show verbosity hint...
-        if self._verbose:
-            print(_(f'Using endpoint: {url}'))
+        #if self._verbose:
+        #    print(_(f'Using endpoint: {url}'))
 
         # Return constructed URL to caller...
         return url
@@ -211,7 +211,7 @@ class client(object):
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
-            raise helios.exceptions.UnexpectedResponse(someException.messages)
+            raise helios.exceptions.UnexpectedResponse(someException.messages) from someException
 
         # Parse response...
         return server_status
@@ -229,7 +229,7 @@ class client(object):
             similarity_search_schema = helios.requests.SimilaritySearchSchema()
             similarity_search_schema.load(similarity_search_dict)
         except marshmallow.ValidationError as validationException:
-            raise helios.exceptions.Validation(validationException)
+            raise helios.exceptions.Validation(str(validationException)) from validationException
 
         # Submit request...
         response = self._submit_request(
@@ -247,7 +247,7 @@ class client(object):
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
-            raise helios.exceptions.UnexpectedResponse(someException.messages)
+            raise helios.exceptions.UnexpectedResponse(someException.messages) from someException
 
         # Return similar songs list...
         return songs_list
@@ -285,7 +285,7 @@ class client(object):
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
-            raise helios.exceptions.UnexpectedResponse(someException.messages)
+            raise helios.exceptions.UnexpectedResponse(someException.messages) from someException
 
         # Return single stored song model...
         return songs_list[0]
@@ -373,7 +373,7 @@ class client(object):
         # Connection problem...
         except requests.exceptions.ConnectionError as someException:
             raise helios.exceptions.Connection(
-                _(f'Unable to connect to {self._host}:{self._port}'))
+                _(f'Unable to connect to {self._host}:{self._port}')) from someException
 
         # Server reported an error, raise appropriate exception...
         except requests.HTTPError as ServerError:
@@ -405,7 +405,7 @@ class client(object):
             patch_song_schema = helios.requests.PatchSongSchema()
             patch_song_schema.load(patch_song_dict)
         except marshmallow.ValidationError as validationException:
-            raise helios.exceptions.Validation(validationException)
+            raise helios.exceptions.Validation(str(validationException)) from validationException
 
         # Submit request...
         response = self._submit_request(
@@ -422,7 +422,7 @@ class client(object):
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as someException:
-            raise helios.exceptions.UnexpectedResponse(someException.messages)
+            raise helios.exceptions.UnexpectedResponse(someException.messages) from someException
 
         # Parse response...
         return stored_song_response
@@ -559,7 +559,7 @@ class client(object):
         # Connection problem...
         except requests.exceptions.ConnectionError as someException:
             raise helios.exceptions.Connection(
-                _(f'Unable to connect to {self._host}:{self._port}'))
+                _(f'Unable to connect to {self._host}:{self._port}')) from someException
 
         # Server reported an error, raise appropriate exception...
         except requests.HTTPError as serverException:
@@ -569,7 +569,7 @@ class client(object):
                 raise helios.exceptions.ResponseExceptionBase(
                     code=serverException.response.status_code,
                     details=F'Server response had no JSON body, but code {serverException.response.status_code}.',
-                    summary=F'Server response had no JSON body, but code {serverException.response.status_code}.')
+                    summary=F'Server response had no JSON body, but code {serverException.response.status_code}.') from serverException
             self._raise_http_exception(serverException.response.json())
 
         # Return the response object...

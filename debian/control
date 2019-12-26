@@ -10,7 +10,7 @@ Build-Depends:
     lintian,
     python3-all,
     python3-attr (>= 18.2.0),
-    python3-marshmallow (>= 3.0.0b14),
+    python3-marshmallow (>= 3.2.2),
     python3-requests,
     python3-setuptools,
     python3-simplejson,
@@ -18,6 +18,7 @@ Build-Depends:
 Homepage: https://www.heliosmusic.io
 Vcs-Git: https://www.github.com/cartesiantheatre/python-helios-client.git
 Vcs-Browser: https://github.com/cartesiantheatre/python-helios-client
+Rules-Requires-Root: no
 
 Package: python3-helios-client
 Architecture: all

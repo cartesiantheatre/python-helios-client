@@ -84,8 +84,8 @@ class ErrorSchema(Schema):
 # CPU load status field of server CPU status request response...
 @attr.s
 class ServerCPULoadStatus:
-    all                            = attr.ib(validator=attr.validators.instance_of(float))
-    individual                     = attr.ib()
+    all                             = attr.ib(validator=attr.validators.instance_of(float))
+    individual                      = attr.ib()
 
 
 # CPU load status field of server CPU status request response schema...
@@ -97,8 +97,8 @@ class ServerCPULoadStatusSchema(Schema):
         unknown = EXCLUDE
 
     # Fields...
-    all                            = fields.Float(required=True)
-    individual                     = fields.List(fields.Float(), required=True)
+    all                             = fields.Float(required=True)
+    individual                      = fields.List(fields.Float(), required=True)
 
     # Callback to receive dictionary of deserialized data...
     @post_load
@@ -109,8 +109,9 @@ class ServerCPULoadStatusSchema(Schema):
 # CPU status field of server status request response...
 @attr.s
 class ServerCPUStatus:
-    cores                          = attr.ib(validator=attr.validators.instance_of(int))
-    load                           = attr.ib()
+    architecture                    = attr.ib(validator=attr.validators.instance_of(str))
+    cores                           = attr.ib(validator=attr.validators.instance_of(int))
+    load                            = attr.ib()
 
 
 # CPU status of server status request response schema...
@@ -122,6 +123,7 @@ class ServerCPUStatusSchema(Schema):
         unknown = EXCLUDE
 
     # Fields...
+    architecture                    = fields.String(required=True)
     cores                           = fields.Integer(required=True)
     load                            = fields.Nested(ServerCPULoadStatusSchema(), required=True)
 
