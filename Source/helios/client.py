@@ -478,6 +478,10 @@ class client(object):
         query_parameters=dict(),
         data=bytes()):
 
+        # Request timeout tuple in seconds. First parameter is connect timeout
+        #  with the second being the read timeout...
+        timeout = (5.0, 25.0)
+
         # Get the base URL...
         url = self._get_endpoint_url(endpoint)
 
@@ -515,6 +519,7 @@ class client(object):
                     headers=headers,
                     params=query_parameters,
                     data=data,
+                    timeout=timeout,
                     verify=verify,
                     cert=public_private_key)
 
@@ -525,6 +530,7 @@ class client(object):
                     headers=headers,
                     params=query_parameters,
                     data=data,
+                    timeout=timeout,
                     verify=verify,
                     cert=public_private_key)
 
@@ -535,6 +541,7 @@ class client(object):
                     headers=headers,
                     params=query_parameters,
                     data=data,
+                    timeout=timeout,
                     verify=verify,
                     cert=public_private_key)
 
@@ -545,6 +552,7 @@ class client(object):
                     headers=headers,
                     params=query_parameters,
                     data=data,
+                    timeout=timeout,
                     verify=verify,
                     cert=public_private_key)
 
@@ -556,10 +564,20 @@ class client(object):
             #  raise an exception...
             response.raise_for_status()
 
-        # Connection problem...
+        # Can't establish connection problem...
+        except requests.exceptions.ReadTimeout as someException:
+            raise helios.exceptions.Connection(
+                _(F'Read timeout awaiting response from {self._host}:{self._port}')) from someException
+
+        # Connection timeout...
+        except requests.exceptions.ConnectTimeout as someException:
+            raise helios.exceptions.Connection(
+                _(F'Connection timeout connecting to {self._host}:{self._port}')) from someException
+
+        # Some other connection problem...
         except requests.exceptions.ConnectionError as someException:
             raise helios.exceptions.Connection(
-                _(f'Unable to connect to {self._host}:{self._port}')) from someException
+                _(F'Connection timeout connecting to {self._host}:{self._port}')) from someException
 
         # Server reported an error, raise appropriate exception...
         except requests.HTTPError as serverException:
