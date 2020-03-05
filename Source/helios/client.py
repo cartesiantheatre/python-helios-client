@@ -45,6 +45,12 @@ class client(object):
         self._verbose           = verbose
         self._version           = version
 
+        # Construct an adaptor to automatically make three retry attempts on
+        #  failed DNS lookups and connection timeouts...
+        self._adapter = requests.adapters.HTTPAdapter(max_retries=3)
+        self._session.mount('http://', self._adapter)
+        self._session.mount('https://', self._adapter)
+
         # Make sure host provided...
         if not host:
             raise Exception(_('No host provided.'))
@@ -480,7 +486,7 @@ class client(object):
 
         # Request timeout tuple in seconds. First parameter is connect timeout
         #  with the second being the read timeout...
-        timeout = (5.0, 25.0)
+        timeout = (10.0, 60.0)
 
         # Get the base URL...
         url = self._get_endpoint_url(endpoint)
