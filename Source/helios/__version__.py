@@ -5,5 +5,5 @@
 #
 
 # Module version...
-version = '0.3.dev20200304'
+version = '0.3.dev20200726'
 
