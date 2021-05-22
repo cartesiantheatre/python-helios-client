@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2019 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2021 Cartesian Theatre. All rights reserved.
 #
 
 # Imports...
@@ -258,6 +258,42 @@ class client(object):
         # Return similar songs list...
         return songs_list
 
+    # Retrieve a list of random songs...
+    def get_random_songs(self, size=1):
+
+        # Initialize headers...
+        headers                         = self._common_headers
+        headers['Accept']               = client._json_mime_type
+
+        # Prepare request...
+        query_parameters                = {}
+        query_parameters['size']        = int(size)
+
+        # Submit request, extract, construct each stored song and add to list...
+        try:
+
+            # Submit request...
+            response = self._submit_request(
+                endpoint='/songs/random',
+                method='GET',
+                headers=headers,
+                query_parameters=query_parameters)
+
+            # Validate response...
+            stored_song_schema = helios.responses.StoredSongSchema(many=True)
+            random_songs_list = stored_song_schema.load(response.json())
+
+        # No more songs...
+        except helios.exceptions.NotFound:
+            return []
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as someException:
+            raise helios.exceptions.UnexpectedResponse(someException.messages) from someException
+
+        # Return list of stored songs...
+        return random_songs_list
+
     # Retrieve the stored song model metadata of a song...
     def get_song(self, song_id=None, song_reference=None):
 
@@ -285,7 +321,7 @@ class client(object):
             songs_list = stored_song_schema.load(response.json())
 
             # There should have been only one song retrieved...
-            if len(songs_list) is not 1:
+            if len(songs_list) != 1:
                 raise helios.exceptions.UnexpectedResponse(
                     _('Expected a single song response.'))
 

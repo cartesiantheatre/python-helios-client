@@ -1,3 +1,9 @@
+python-helios-client (0.3-git20210521-ct2ubuntu1) groovy; urgency=medium
+
+  * Build for groovy.
+
+ -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Fri, 21 May 2021 17:32:58 -0700
+
 python-helios-client (0.3-git20200726-ct2) focal; urgency=medium
 
   * Build for focal.

@@ -1,6 +1,6 @@
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2019 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2021 Cartesian Theatre. All rights reserved.
 #
 
 # Import modules...

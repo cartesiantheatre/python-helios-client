@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2019 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2021 Cartesian Theatre. All rights reserved.
 #
 
 # System imports...
@@ -89,12 +89,16 @@ if __name__ == '__main__':
             patch_song_dict=patch_song_dict,
             song_id=stored_song.id)
 
-    # Create a schema to serialize stored song objects into JSON...
-    stored_song_schema = StoredSongSchema()
+    # Try to retrieve a random assortment of three songs...
+    print('Retrieving random selection of songs...')
+    random_songs_list = client.get_random_songs(size=3)
 
     # Try to get a batch of songs for current page...
     print('Retrieving all songs in catalogue...')
     page_songs_list = client.get_all_songs()
+
+    # Create a schema to serialize stored song objects into JSON...
+    stored_song_schema = StoredSongSchema()
 
     # Delete each one...
     for song in page_songs_list:
