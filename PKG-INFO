@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: helios-client
-Version: 0.3.dev20200726
+Version: 0.3.dev20210521
 Summary: Pure python 3 module to communicate with a Helios server.
 Home-page: https://www.heliosmusic.io
 Author: Cartesian Theatre
@@ -9,7 +9,7 @@ License: LGPL
 Project-URL: Bug Tracker, https://github.com/cartesiantheatre/python-helios-client/issues
 Project-URL: Documentation, https://heliosmusic.io/api.html
 Project-URL: Source Code, https://github.com/cartesiantheatre/python-helios-client
-Description: ![Helios Logo](https://heliosmusic.io/application/files/4615/2807/9653/Helios-Logo.png "Helios Logo")
+Description: ![Helios Logo](https://heliosmusic.io/application/files/thumbnails/large/4615/2807/9653/Helios-Logo.png "Helios Logo")
         
         # Helios Client API (Pure Python 3 Module)
         

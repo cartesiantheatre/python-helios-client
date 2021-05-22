@@ -93,6 +93,13 @@ if __name__ == '__main__':
     print('Retrieving random selection of songs...')
     random_songs_list = client.get_random_songs(size=3)
 
+    # Show each randomly selected song...
+    for random_song in random_songs_list:
+
+        # Show what we retrieved...
+        print('Randomly selected record...')
+        pprint(stored_song_schema.dump(random_song))
+
     # Try to get a batch of songs for current page...
     print('Retrieving all songs in catalogue...')
     page_songs_list = client.get_all_songs()
