@@ -1,54 +1,5 @@
-python-helios-client (0.3-git20210521-ct2ubuntu1) groovy; urgency=medium
+python-helios-client (0.3-git20210618-ct1) groovy; urgency=medium
 
   * Build for groovy.
 
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Fri, 21 May 2021 17:32:58 -0700
-
-python-helios-client (0.3-git20200726-ct2) focal; urgency=medium
-
-  * Build for focal.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Sun, 26 Jul 2020 19:56:00 -0700
-
-python-helios-client (0.3-git20200304-ct1) eoan; urgency=medium
-
-  * Version 0.3-git20200304.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Mon, 04 Mar 2020 16:20:00 -0800
-
-python-helios-client (0.3-git20191118-ct1) eoan; urgency=medium
-
-  * Version 0.3-git20191118.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Sun, 18 Nov 2019 14:46:00 -0800
-
-python-helios-client (0.3-git20191024-ct1) eoan; urgency=medium
-
-  * Build for eoan.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Sun, 27 Oct 2019 15:31:08 -0700
-
-python-helios-client (0.3-git20191024-ct1) disco; urgency=medium
-
-  * Version 0.3-git20191024.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Wed, 24 Oct 2019 19:04:00 -0700
-
-python-helios-client (0.3-git20191014-ct1) disco; urgency=medium
-
-  * Version 0.3-git20191014.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Mon, 14 Oct 2019 21:44:00 -0700
-
-python-helios-client (0.3-git20191003-ct1) disco; urgency=medium
-
-  * Version 0.3-git20191003.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Thu, 03 Oct 2019 22:09:34 -0700
-
-python-helios-client (0.3-git20190919-ct1) disco; urgency=medium
-
-  * First stable release.
-
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Thu, 19 Sep 2019 16:14:00 -0700
-
+ -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Fri, 18 Jun 2021 20:16:00 -0700
