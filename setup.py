@@ -81,7 +81,8 @@ setup(
         'marshmallow >= 3.2.2',
         'requests',
         'simplejson',
-        'tqdm'
+        'tqdm',
+        'wheel'
     ],
     package_dir={'': 'Source'},
     packages=find_namespace_packages(where='Source'),

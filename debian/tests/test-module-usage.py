@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env -S python3 -Werror -Wignore::ResourceWarning
 #
 #   Helios, intelligent music.
 #   Copyright (C) 2015-2021 Cartesian Theatre. All rights reserved.
@@ -93,6 +93,9 @@ if __name__ == '__main__':
     print('Retrieving random selection of songs...')
     random_songs_list = client.get_random_songs(size=3)
 
+    # Create a schema to serialize stored song objects into JSON...
+    stored_song_schema = StoredSongSchema()
+
     # Show each randomly selected song...
     for random_song in random_songs_list:
 
@@ -103,9 +106,6 @@ if __name__ == '__main__':
     # Try to get a batch of songs for current page...
     print('Retrieving all songs in catalogue...')
     page_songs_list = client.get_all_songs()
-
-    # Create a schema to serialize stored song objects into JSON...
-    stored_song_schema = StoredSongSchema()
 
     # Delete each one...
     for song in page_songs_list:

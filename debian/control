@@ -14,7 +14,8 @@ Build-Depends:
     python3-requests,
     python3-setuptools,
     python3-simplejson,
-    python3-tqdm
+    python3-tqdm,
+    python3-wheel
 Homepage: https://www.heliosmusic.io
 Vcs-Git: https://www.github.com/cartesiantheatre/python-helios-client.git
 Vcs-Browser: https://github.com/cartesiantheatre/python-helios-client
