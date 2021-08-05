@@ -126,5 +126,3 @@ class InsufficientStorage(ResponseExceptionBase):
     # Constructor...
     def __init__(self, code=None, details=None, summary=None):
         super().__init__(code, details, summary)
-
-

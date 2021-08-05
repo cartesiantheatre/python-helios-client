@@ -6,7 +6,7 @@
 
 # Imports...
 import attr
-from marshmallow import Schema, fields, post_load, pre_dump
+from marshmallow import Schema, fields, post_load
 
 # i18n...
 import gettext
@@ -14,7 +14,7 @@ _ = gettext.gettext
 
 # New song request...
 @attr.s
-class NewSong(object):
+class NewSong:
     album               = attr.ib(default=None)
     artist              = attr.ib(default=None)
     beats_per_minute    = attr.ib(default=None)
@@ -81,7 +81,7 @@ class PatchSongSchema(Schema):
 
 # Similarity search request...
 @attr.s
-class SimilaritySearch(object):
+class SimilaritySearch:
     similar_file            = attr.ib(default=None)
     similar_id              = attr.ib(default=None)
     similar_reference       = attr.ib(default=None)
@@ -103,4 +103,3 @@ class SimilaritySearchSchema(Schema):
     @post_load
     def make_similarity_search(self, data, **kwargs):
         return SimilaritySearch(**data)
-

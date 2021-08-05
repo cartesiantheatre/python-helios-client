@@ -9,7 +9,7 @@ import gettext
 _ = gettext.gettext
 
 # Chunked upload class to allow file upload progress with Requests library...
-class chunked_upload(object):
+class chunked_upload:
 
     # Constructor takes data, size of chunk on each read, and a progress
     #  callback of the from foo(bytes_read, new_bytes, total_bytes)
@@ -45,4 +45,3 @@ class chunked_upload(object):
     # Length of upload...
     def __len__(self):
         return self._total_size
-

@@ -4,9 +4,11 @@
 #   Copyright (C) 2015-2021 Cartesian Theatre. All rights reserved.
 #
 
-# Imports...
-import attr
+# System imports...
 import datetime
+
+# Other imports...
+import attr
 from marshmallow import Schema, fields, post_load, EXCLUDE
 
 # Stored song response after adding, modifying, or retrieving a song...
@@ -203,4 +205,3 @@ class ServerStatusSchema(Schema):
     @post_load
     def make_server_status(self, data, **kwargs):
         return ServerStatus(**data)
-
