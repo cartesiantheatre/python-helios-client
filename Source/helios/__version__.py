@@ -5,5 +5,5 @@
 #
 
 # Module version...
-version = '0.3+dev20210804.1'
-
+#  <https://www.python.org/dev/peps/pep-0440/>
+version = '0.3.20210804.post1'
