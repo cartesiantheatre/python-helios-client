@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: helios-client
-Version: 0.3.20210804.post1
+Version: 0.3.20211022.post1
 Summary: Pure python 3 module to communicate with a Helios server.
 Home-page: https://www.heliosmusic.io
 Author: Cartesian Theatre
@@ -42,7 +42,7 @@ Description: ![Helios Logo](https://heliosmusic.io/application/files/thumbnails/
         ## Quick installation
         
         ### Ubuntu
-        Packages already prepared for Ubuntu 19.04 (disco) and later are available on our Personal Package Archive (PPA) [here](https://launchpad.net/%7Ekip/+archive/ubuntu/helios-public). To get the package installed and be up and running in seconds, just run the following two commands:
+        Packages already prepared for Ubuntu 21.04 (hirsute) and later are available on our Personal Package Archive (PPA) [here](https://launchpad.net/%7Ekip/+archive/ubuntu/helios-public). To get the package installed and be up and running in seconds, just run the following two commands:
         
         ```console
         $ sudo add-apt-repository ppa:kip/helios-public

@@ -26,13 +26,23 @@ class client:
     _json_mime_type  = 'application/json'
 
     # Constructor...
-    def __init__(self, host, port=6440, api_key=None, tls=True, tls_ca_file=None, tls_certificate=None, tls_key=None, verbose=False, version='v1'):
+    def __init__(self, host, port=6440, api_key=None, timeout_connect=None, timeout_read=None, tls=True, tls_ca_file=None, tls_certificate=None, tls_key=None, verbose=False, version='v1'):
+
+        # Set default connection timeout if none provided by user...
+        if timeout_connect is None:
+            timeout_connect = 15
+
+        # Set default read timeout if none provided by user...
+        if timeout_read is None:
+            timeout_read = 300
 
         # Initialize...
         self._session           = requests.Session()
         self._host              = host
         self._port              = port
         self._api_key           = api_key
+        self._timeout_connect   = timeout_connect
+        self._timeout_read      = timeout_read
         self._tls               = tls
         self._tls_ca_file       = tls_ca_file
         self._tls_certificate   = tls_certificate
@@ -47,11 +57,11 @@ class client:
         self._session.mount('https://', self._adapter)
 
         # Make sure host provided...
-        if not host:
+        if host is None:
             raise Exception(_('No host provided.'))
 
         # Make sure port provided...
-        if not port:
+        if port is None:
             raise Exception(_('No port provided.'))
 
         # Initialize headers common to all queries...
@@ -517,7 +527,7 @@ class client:
 
         # Request timeout tuple in seconds. First parameter is connect timeout
         #  with the second being the read timeout...
-        timeout = (10.0, 60.0)
+        timeout = (self._timeout_connect, self._timeout_read)
 
         # Get the base URL...
         url = self._get_endpoint_url(endpoint)
