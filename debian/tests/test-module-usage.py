@@ -45,11 +45,11 @@ if __name__ == '__main__':
     client = helios.client(host=local_ip_address)
 
     # Query status...
-    print('Querying Helios server status...')
-    server_status = client.get_server_status()
+    print('Querying Helios system status...')
+    system_status = client.get_system_status()
 
     # Show status...
-    pprint(attr.asdict(server_status))
+    pprint(attr.asdict(system_status))
 
     # Unique field for each song reference...
     song_index = 0

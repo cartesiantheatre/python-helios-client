@@ -83,17 +83,43 @@ class ErrorSchema(Schema):
         return Error(**data)
 
 
-# CPU load status field of server CPU status request response...
+# Job status response...
 @attr.s
-class ServerCPULoadStatus:
+class JobStatus:
+    eta                 = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+    message             = attr.ib(default='', validator=attr.validators.instance_of(str))
+    progress_current    = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+    progress_rate       = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+    progress_total      = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+
+
+# Job status response schema...
+class JobStatusSchema(Schema):
+
+    # Fields...
+    eta                 = fields.Integer(required=False)
+    message             = fields.String(required=True)
+    progress_current    = fields.Integer(required=False)
+    progress_rate       = fields.Integer(required=False)
+    progress_total      = fields.Integer(required=False)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_error(self, data, **kwargs):
+        return JobStatus(**data)
+
+
+# CPU load status field of system's CPU status request response...
+@attr.s
+class SystemCPULoadStatus:
     all                             = attr.ib(validator=attr.validators.instance_of(float))
     individual                      = attr.ib()
 
 
-# CPU load status field of server CPU status request response schema...
-class ServerCPULoadStatusSchema(Schema):
+# CPU load status field of system CPU status request response schema...
+class SystemCPULoadStatusSchema(Schema):
 
-    # Don't raise a ValidationError on load() when server's response contains
+    # Don't raise a ValidationError on load() when system's response contains
     #  new fields the client may not recognize yet...
     class Meta:
         unknown = EXCLUDE
@@ -104,22 +130,22 @@ class ServerCPULoadStatusSchema(Schema):
 
     # Callback to receive dictionary of deserialized data...
     @post_load
-    def make_server_cpu_load_status(self, data, **kwargs):
-        return ServerCPULoadStatus(**data)
+    def make_system_cpu_load_status(self, data, **kwargs):
+        return SystemCPULoadStatus(**data)
 
 
-# CPU status field of server status request response...
+# CPU status field of system's status request response...
 @attr.s
-class ServerCPUStatus:
+class SystemCPUStatus:
     architecture                    = attr.ib(validator=attr.validators.instance_of(str))
     cores                           = attr.ib(validator=attr.validators.instance_of(int))
     load                            = attr.ib()
 
 
-# CPU status of server status request response schema...
-class ServerCPUStatusSchema(Schema):
+# CPU status of system status request response schema...
+class SystemCPUStatusSchema(Schema):
 
-    # Don't raise a ValidationError on load() when server's response contains
+    # Don't raise a ValidationError on load() when system's response contains
     #  new fields the client may not recognize yet...
     class Meta:
         unknown = EXCLUDE
@@ -127,27 +153,27 @@ class ServerCPUStatusSchema(Schema):
     # Fields...
     architecture                    = fields.String(required=True)
     cores                           = fields.Integer(required=True)
-    load                            = fields.Nested(ServerCPULoadStatusSchema(), required=True)
+    load                            = fields.Nested(SystemCPULoadStatusSchema(), required=True)
 
     # Callback to receive dictionary of deserialized data...
     @post_load
-    def make_server_cpu_status(self, data, **kwargs):
-        return ServerCPUStatus(**data)
+    def make_system_cpu_status(self, data, **kwargs):
+        return SystemCPUStatus(**data)
 
 
-# Disk field of server status request response...
+# Disk field of system status request response...
 @attr.s
-class ServerDiskStatus:
+class SystemDiskStatus:
     client_store_upload            = attr.ib(validator=attr.validators.instance_of(bool))
     client_store_upload_directory  = attr.ib(default='', validator=attr.validators.optional(attr.validators.instance_of(str)))
     available                      = attr.ib(default=0, validator=attr.validators.optional(attr.validators.instance_of(int)))
     capacity                       = attr.ib(default=0, validator=attr.validators.optional(attr.validators.instance_of(int)))
 
 
-# Disk field of server status request response schema...
-class ServerDiskStatusSchema(Schema):
+# Disk field of system status request response schema...
+class SystemDiskStatusSchema(Schema):
 
-    # Don't raise a ValidationError on load() when server's response contains
+    # Don't raise a ValidationError on load() when system's response contains
     #  new fields the client may not recognize yet...
     class Meta:
         unknown = EXCLUDE
@@ -160,13 +186,13 @@ class ServerDiskStatusSchema(Schema):
 
     # Callback to receive dictionary of deserialized data...
     @post_load
-    def make_server_disk_status(self, data, **kwargs):
-        return ServerDiskStatus(**data)
+    def make_system_disk_status(self, data, **kwargs):
+        return SystemDiskStatus(**data)
 
 
-# Server status response...
+# System status response...
 @attr.s
-class ServerStatus:
+class SystemStatus:
     algorithm_age   = attr.ib(validator=attr.validators.instance_of(int))
     built           = attr.ib(validator=attr.validators.instance_of(datetime.datetime))
     configured      = attr.ib(validator=attr.validators.instance_of(str))
@@ -180,10 +206,10 @@ class ServerStatus:
     version         = attr.ib(validator=attr.validators.instance_of(str))
 
 
-# Server status response schema...
-class ServerStatusSchema(Schema):
+# System status response schema...
+class SystemStatusSchema(Schema):
 
-    # Don't raise a ValidationError on load() when server's response contains
+    # Don't raise a ValidationError on load() when system's response contains
     #  new fields the client may not recognize yet...
     class Meta:
         unknown = EXCLUDE
@@ -192,8 +218,8 @@ class ServerStatusSchema(Schema):
     algorithm_age   = fields.Integer(required=True)
     built           = fields.DateTime(required=True, format='rfc')
     configured      = fields.String(required=True)
-    cpu             = fields.Nested(ServerCPUStatusSchema(), required=True)
-    disk            = fields.Nested(ServerDiskStatusSchema(), required=True)
+    cpu             = fields.Nested(SystemCPUStatusSchema(), required=True)
+    disk            = fields.Nested(SystemDiskStatusSchema(), required=True)
     encoding        = fields.String(required=True)
     songs           = fields.Integer(required=True)
     system          = fields.String(required=True)
@@ -203,5 +229,5 @@ class ServerStatusSchema(Schema):
 
     # Callback to receive dictionary of deserialized data...
     @post_load
-    def make_server_status(self, data, **kwargs):
-        return ServerStatus(**data)
+    def make_system_status(self, data, **kwargs):
+        return SystemStatus(**data)

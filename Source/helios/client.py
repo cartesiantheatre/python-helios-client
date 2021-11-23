@@ -10,10 +10,12 @@ import marshmallow
 import simplejson
 from tqdm import tqdm
 import urllib3
+import re
 import requests
 import helios
 from helios import __version__
 from helios.chunked_upload import chunked_upload
+import time
 
 # i18n...
 import gettext
@@ -66,8 +68,11 @@ class client:
 
         # Initialize headers common to all queries...
         self._common_headers                = {}
-        self._common_headers['X-API-Key']   = self._api_key
         self._common_headers['User-Agent']  = F'helios-python {get_version()}'
+
+        # If an API key was provided by user, add it to request headers...
+        if api_key is not None:
+            self._common_headers['X-API-Key']   = self._api_key
 
         # If verbosity is enabled, toggle in requests and http client libraries...
 #        if self._verbose:
@@ -120,6 +125,21 @@ class client:
 
         # Parse response...
         return stored_song_response
+
+    # Delete an asynchronous job running on the server by job ID...
+    def delete_job(self, job_id):
+
+        # Initialize headers...
+        headers = self._common_headers
+
+        # Format endpoint...
+        endpoint = F'/status/jobs/{job_id}'
+
+        # Submit request...
+        self._submit_request(
+            endpoint=endpoint,
+            method='DELETE',
+            headers=headers)
 
     # Delete a song by ID or reference...
     def delete_song(self, song_id=None, song_reference=None):
@@ -192,7 +212,7 @@ class client:
             url = 'http://'
 
         # Construct rest of URL to endpoint...
-        url += f'{self._host}:{self._port}/{self._version}/{endpoint}/'
+        url += f'{self._host}:{self._port}/{self._version}/{endpoint}'
 
         # Show verbosity hint...
         #if self._verbose:
@@ -201,8 +221,8 @@ class client:
         # Return constructed URL to caller...
         return url
 
-    # Get server information status...
-    def get_server_status(self):
+    # Get system status about server...
+    def get_system_status(self):
 
         # Initialize headers...
         headers                 = self._common_headers
@@ -210,58 +230,78 @@ class client:
 
         # Submit request...
         response = self._submit_request(
-            endpoint='/status',
+            endpoint='/status/system',
             method='GET',
             headers=headers)
 
-        # Extract and construct server status...
+        # Extract and construct system status...
         try:
             response_dict = response.json()
-            server_status_schema = helios.responses.ServerStatusSchema()
-            server_status = server_status_schema.load(response_dict['server_status'])
+            system_status_schema = helios.responses.SystemStatusSchema()
+            system_status = system_status_schema.load(response_dict['system_status'])
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as some_exception:
             raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
 
         # Parse response...
-        return server_status
+        return system_status
 
-    # Perform a similarity search within the music catalogue...
-    def get_similar_songs(self, similarity_search_dict):
+    # Get job status from server, returning the HTTP status code and the
+    #  object the server sent us...
+    def get_job_status(self, job_id):
 
         # Initialize headers...
-        headers                     = self._common_headers
-        headers['Accept']           = client._json_mime_type
-        headers['Content-Type']     = client._json_mime_type
+        headers                 = self._common_headers
+        headers['Accept']       = client._json_mime_type
 
-        # Validate similarity_search_dict against schema...
-        try:
-            similarity_search_schema = helios.requests.SimilaritySearchSchema()
-            similarity_search_schema.load(similarity_search_dict)
-        except marshmallow.ValidationError as some_exception:
-            raise helios.exceptions.Validation(some_exception) from some_exception
+        # Format endpoint...
+        endpoint = F'/status/jobs/{job_id}'
 
         # Submit request...
         response = self._submit_request(
-            endpoint='/songs/similar',
-            method='POST',
-            headers=headers,
-            data=json.dumps(similarity_search_dict))
+            endpoint=endpoint,
+            method='GET',
+            headers=headers)
 
-        # Extract and construct each stored song and add to list...
+        # Extract and deserialize response...
         try:
 
-            # Storage for list of stored songs...
-            stored_song_schema = helios.responses.StoredSongSchema(many=True)
-            songs_list = stored_song_schema.load(response.json())
+            # Convert the incoming JSON into a dictionary...
+            response_dict = response.json()
+
+            # Final result ready...
+            if response.status_code == 200:
+
+                # Storage for list of stored songs...
+                stored_song_schema = helios.responses.StoredSongSchema(many=True)
+                songs_list = stored_song_schema.load(response.json())
+
+                # Return status code and deserialized object to caller...
+                return (response.status_code, songs_list)
+
+            # Status update ready...
+            elif response.status_code == 202:
+
+                # Storage for job status...
+                job_status_schema = helios.responses.JobStatusSchema()
+                job_status = job_status_schema.load(response_dict)
+
+                # Return status code and deserialized object to caller...
+                return (response.status_code, job_status)
+
+            # Server reported an error. Raise an exception...
+            elif response.status_code >= 400:
+                self._raise_http_exception(response_dict)
+
+            # For all other responses treat it as though it was unexpected...
+            else:
+                raise helios.exceptions.UnexpectedResponse(
+                    _(F'Unexpected server response while polling job status: {response.status_code}'))
 
         # Deserialization error...
         except marshmallow.exceptions.MarshmallowError as some_exception:
             raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
-
-        # Return similar songs list...
-        return songs_list
 
     # Retrieve a list of random songs...
     def get_random_songs(self, size=1):
@@ -298,6 +338,135 @@ class client:
 
         # Return list of stored songs...
         return random_songs_list
+
+    # Perform a similarity search within the music catalogue...
+    def get_similar_songs(self, similarity_search_dict, progress=False):
+
+        # Initialize headers...
+        headers                     = self._common_headers
+        headers['Accept']           = client._json_mime_type
+        headers['Content-Type']     = client._json_mime_type
+        headers['X-Helios-Expect']  = '202-accepted'
+
+        # Validate similarity_search_dict against schema...
+        try:
+            similarity_search_schema = helios.requests.SimilaritySearchSchema()
+            similarity_search_schema.load(similarity_search_dict)
+        except marshmallow.ValidationError as some_exception:
+            raise helios.exceptions.Validation(some_exception) from some_exception
+
+        # Submit request...
+        response = self._submit_request(
+            endpoint='/songs/similar',
+            method='POST',
+            headers=headers,
+            data=json.dumps(similarity_search_dict))
+
+        # Verify server sent Location response header...
+        if 'Location' not in response.headers:
+            raise helios.exceptions.UnexpectedResponse(
+                _('Location header missing from server response.'))
+
+        # Parse Location header for job ID which points to where job status can
+        #  be tracked...
+        location = response.headers.get('Location')
+        location_regex = re.compile(FR"^/{self._version}/status/jobs/(\d+)$")
+        matches = re.fullmatch(location_regex, location)
+
+        # Check to ensure job ID could be parsed...
+        if not matches:
+            raise helios.exceptions.UnexpectedResponse(
+                _(F'Location header malformed: {location}'))
+
+        # Extract job ID...
+        job_id = matches.group(1)
+
+        # Log job ID...
+        if self._verbose:
+            print(_(F'Server reported job started with job ID {job_id}...'))
+
+        # Optional progress bar, if requested by user and we have enough
+        #  information to manage one...
+        progress_bar = None
+
+        # Try to monitor progress until final update is available...
+        try:
+
+            # Status code received from server each time we poll it...
+            status_code = 0
+
+            # Counter of the number of bytes the server has fetched...
+            bytes_fetched = 0
+
+            # Keep polling until final update is received...
+            while True:
+
+                # Wait a second after each query...
+                time.sleep(1.0)
+
+                # Query server for response code and object...
+                status_code, response_object = self.get_job_status(job_id)
+
+                # Result is ready...
+                if status_code == 200:
+
+                    # Get the songs' list...
+                    songs_list = response_object
+
+                    # Return list to user...
+                    return songs_list
+
+                # Status update available, but final result not ready yet...
+                if status_code == 202:
+
+                    # Get the job's status...
+                    job_status = response_object
+
+                    # If a progress bar was requested and does not exist yet,
+                    #  construct it...
+                    if progress and progress_bar is None and job_status.progress_total is not None:
+                        progress_bar = tqdm(total=job_status.progress_total, unit='B', unit_scale=True)
+
+                    # If a progress bar exists, update it...
+                    if progress_bar is not None:
+
+                        # Update progress bar...
+                        progress_bar.update(job_status.progress_current - bytes_fetched)
+
+                        # Track the number of bytes server fetched for next
+                        #  iteration...
+                        bytes_fetched = job_status.progress_current
+
+                        # Set description...
+                        progress_bar.set_description(job_status.message)
+
+                # For all other responses treat it as though it was unexpected...
+                else:
+                    raise helios.exceptions.UnexpectedResponse(
+                        _(F'Unexpected server response while polling job status: {response.status_code}'))
+
+        # User trying to abort...
+        except KeyboardInterrupt as someException:
+
+            # Notify user we heard them...
+            print(_(F'\rAborting. Please wait a moment...'))
+
+            # Ask server to delete the job...
+            self.delete_job(job_id)
+
+            # Propagate interrupt up the chain...
+            raise someException
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as some_exception:
+            raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
+
+        # Cleanup tasks...
+        finally:
+
+            # Deallocate progress bar if we created one...
+            if progress is not None:
+                progress_bar.close()
 
     # Retrieve the stored song model metadata of a song...
     def get_song(self, song_id=None, song_reference=None):
@@ -462,7 +631,7 @@ class client:
             query_parameters=query_parameters,
             data=json.dumps(patch_song_dict))
 
-        # Extract and construct server status...
+        # Extract and construct server response...
         try:
             stored_song_response_schema = helios.responses.StoredSongSchema()
             stored_song_response = stored_song_response_schema.load(response.json())
@@ -479,13 +648,19 @@ class client:
     def _raise_http_exception(self, json_response):
 
         # Extract HTTP code from JSON response...
-        code = int(json_response['code'])
+        code = 0
+        if 'code' in json_response:
+            code = int(json_response['code'])
 
         # Extract error details from JSON response...
-        details = json_response['details']
+        details = 'A problem occurred, but the server provided no details.'
+        if 'details' in json_response:
+            details = json_response['details']
 
         # Extract error summary from JSON response...
-        summary = json_response['summary']
+        summary = 'Server provided no summary.'
+        if 'summary' in json_response:
+            summary = json_response['summary']
 
         # Bad request exception. Suitable on a 400...
         if code == 400:
