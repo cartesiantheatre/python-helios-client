@@ -465,7 +465,7 @@ class client:
         finally:
 
             # Deallocate progress bar if we created one...
-            if progress is not None:
+            if progress_bar is not None:
                 progress_bar.close()
 
     # Retrieve the stored song model metadata of a song...
