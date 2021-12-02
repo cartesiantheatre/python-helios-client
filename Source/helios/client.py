@@ -54,7 +54,7 @@ class client:
 
         # Construct an adaptor to automatically make three retry attempts on
         #  failed DNS lookups and connection timeouts...
-        self._adapter = requests.adapters.HTTPAdapter(max_retries=3)
+        self._adapter = requests.adapters.HTTPAdapter()   # Set constructor to max_retries=3 for three retries
         self._session.mount('http://', self._adapter)
         self._session.mount('https://', self._adapter)
 
@@ -794,12 +794,12 @@ class client:
         # Connection timeout...
         except requests.exceptions.ConnectTimeout as some_exception:
             raise helios.exceptions.Connection(
-                _(F'Connection timeout connecting to {self._host}:{self._port}')) from some_exception
+                _(F'Connection timeout while trying to connect to {self._host}:{self._port}')) from some_exception
 
         # Some other connection problem...
         except requests.exceptions.ConnectionError as some_exception:
             raise helios.exceptions.Connection(
-                _(F'Connection timeout connecting to {self._host}:{self._port}')) from some_exception
+                _(F'Connection error while connecting to {self._host}:{self._port}')) from some_exception
 
         # Server reported an error, raise appropriate exception...
         except requests.HTTPError as some_exception:
