@@ -86,6 +86,7 @@ class SimilaritySearch:
     similar_id              = attr.ib(default=None)
     similar_reference       = attr.ib(default=None)
     similar_url             = attr.ib(default=None)
+    same_genre              = attr.ib(default=None)
     maximum_results         = attr.ib(default=None)
 
 
@@ -97,6 +98,7 @@ class SimilaritySearchSchema(Schema):
     similar_id              = fields.Integer(allow_none=True)
     similar_reference       = fields.String(allow_none=True)
     similar_url             = fields.String(allow_none=True)
+    same_genre              = fields.Boolean(allow_none=True)
     maximum_results         = fields.Integer(allow_none=True)
 
     # Callback to receive dictionary of deserialized data...

@@ -1,6 +1,6 @@
-python-helios-client (0.3-git20211201-1-ct1) hirsute; urgency=medium
+python-helios-client (0.3-git20220102-1-ct1) hirsute; urgency=medium
 
   * Build for hirsute.
 
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Wed, 01 Dec 2021 22:36:00 -0700
+ -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Sun, 02 Dec 2021 18:31:00 -0700
 
