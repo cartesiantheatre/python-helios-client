@@ -1,4 +1,4 @@
-python-helios-client (0.3-git20220225-1-ct1) hirsute; urgency=medium
+python-helios-client (0.3-git20220225-1-ct1) impish; urgency=medium
 
   * Build for impish.
 
