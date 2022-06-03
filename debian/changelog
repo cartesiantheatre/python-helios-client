@@ -1,6 +1,6 @@
-python-helios-client (0.3-git20220602-1-ct1) impish; urgency=medium
+python-helios-client (0.3-git20220602-2-ct1) jammy; urgency=medium
 
   * Build for jammy.
 
- -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Thu, 02 Jun 2022 18:41:00 -0700
+ -- Cartesian Theatre Packaging <packages@cartesiantheatre.com>  Thu, 02 Jun 2022 19:12:00 -0700
 
