@@ -31,7 +31,7 @@ Traditionally, in the absence of such technology, the way this has been done for
 ## Quick installation
 
 ### Ubuntu
-Packages already prepared for Ubuntu 21.10 (impish) and later are available on our Personal Package Archive (PPA) [here](https://launchpad.net/%7Ekip/+archive/ubuntu/helios-public). To get the package installed and be up and running in seconds, just run the following two commands:
+Packages already prepared for Ubuntu 22.04 (jammy) and later are available on our Personal Package Archive (PPA) [here](https://launchpad.net/%7Ekip/+archive/ubuntu/helios-public). To get the package installed and be up and running in seconds, just run the following two commands:
 
 ```console
 $ sudo add-apt-repository ppa:kip/helios-public
@@ -39,7 +39,7 @@ $ sudo apt install python3-helios-client
 ```
 
 ### PyPi
-If you are not using Ubuntu 19.04 or later and know what you are doing, you can use Python's ad hoc package manaement system. This is not recommended as a first choice because it is not as robust as a native package manager.
+If you are not using Ubuntu 22.04 or later and know what you are doing, you can use Python's ad hoc package manaement system. This is not recommended as a first choice because it is not as robust as a native package manager.
 
 ```console
 $ pip install helios-client

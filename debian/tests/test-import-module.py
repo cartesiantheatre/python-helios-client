@@ -1,7 +1,7 @@
 #!/usr/bin/env -S python3 -Werror
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2021 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2022 Cartesian Theatre. All rights reserved.
 #
 
 # System imports...
