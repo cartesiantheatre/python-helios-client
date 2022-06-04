@@ -10,7 +10,7 @@ Build-Depends:
     lintian,
     python3-all,
     python3-attr (>= 18.2.0),
-    python3-marshmallow (>= 3.2.2),
+    python3-marshmallow (>= 3.16.0),
     python3-requests,
     python3-setuptools,
     python3-simplejson,
