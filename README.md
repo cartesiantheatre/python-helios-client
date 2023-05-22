@@ -47,5 +47,5 @@ $ pip install helios-client
 
 ## Licensing
 
-This Python module is released under the terms of the [LGPL 3.0](https://www.gnu.org/licenses/lgpl-3.0.html) or greater. Copyright (C) 2015-2022 Cartesian Theatre. See [Copying](./Copying) for more information.
+This Python module is released under the terms of the [LGPL 3.0](https://www.gnu.org/licenses/lgpl-3.0.html) or greater. Copyright (C) 2015-2023 Cartesian Theatre. See [Copying](./Copying) for more information.
 
