@@ -192,6 +192,31 @@ class SystemDiskStatusSchema(Schema):
         return SystemDiskStatus(**data)
 
 
+# Learning field of system status request response...
+@attr.s
+class SystemLearningStatus:
+    examples                        = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
+    last_trained                    = attr.ib(validator=attr.validators.instance_of(datetime.datetime))
+
+
+# Learning field of system status request response schema...
+class SystemLearningStatusSchema(Schema):
+
+    # Don't raise a ValidationError on load() when system's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
+
+    # Fields...
+    examples                        = fields.Integer(required=True)
+    last_trained                    = fields.DateTime(required=True, format='rfc')
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_system_learning_status(self, data, **kwargs):
+        return SystemLearningStatus(**data)
+
+
 # System status response...
 @attr.s
 class SystemStatus:
@@ -201,6 +226,7 @@ class SystemStatus:
     cpu             = attr.ib()
     disk            = attr.ib()
     encoding        = attr.ib(validator=attr.validators.instance_of(str))
+    learning        = attr.ib()
     songs           = attr.ib(validator=attr.validators.instance_of(int))
     system          = attr.ib(validator=attr.validators.instance_of(str))
     tls             = attr.ib(validator=attr.validators.instance_of(bool))
@@ -223,6 +249,7 @@ class SystemStatusSchema(Schema):
     cpu             = fields.Nested(SystemCPUStatusSchema(), required=True)
     disk            = fields.Nested(SystemDiskStatusSchema(), required=True)
     encoding        = fields.String(required=True)
+    learning        = fields.Nested(SystemLearningStatusSchema(), required=True)
     songs           = fields.Integer(required=True)
     system          = fields.String(required=True)
     tls             = fields.Bool(required=True)
