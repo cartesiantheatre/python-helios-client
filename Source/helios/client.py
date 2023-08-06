@@ -330,8 +330,19 @@ class client:
             if save_catalogue:
                 shutil.move(tempfile_name, save_catalogue)
 
+        # Check if songs to retrieve...
+        except requests.HTTPError as some_exception:
+
+            # No songs available. Return empty list...
+            if some_exception.response.status_code == 404:
+                return []
+
+            # Otherwise some other HTTP error...
+            else:
+                self._raise_http_exception(some_exception.response.json())
+
         # No more songs...
-        except helios.exceptions.NotFound:
+        except requests.exceptions.InvalidURL:
             return []
 
         # Deserialization error...
@@ -1126,6 +1137,10 @@ class client:
         except requests.exceptions.ConnectionError as some_exception:
             raise helios.exceptions.Connection(
                 _(F'Connection error while connecting to {self._host}:{self._port}')) from some_exception
+
+        # URL not found...
+        except requests.exceptions.InvalidURL as some_exception:
+            raise helios.exceptions.NotFound(_(F'URL not found at: {url}')) from some_exception
 
         # Server reported an error, raise appropriate exception...
         except requests.HTTPError as some_exception:
