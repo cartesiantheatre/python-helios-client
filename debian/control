@@ -11,11 +11,11 @@ Build-Depends:
     python3-all,
     python3-attr (>= 18.2.0),
     python3-marshmallow (>= 3.16.0),
+    python3-brotli,
     python3-requests,
     python3-setuptools,
     python3-simplejson,
-    python3-tqdm,
-    python3-wheel
+    python3-tqdm
 Homepage: https://www.heliosmusic.io
 Vcs-Git: https://www.github.com/cartesiantheatre/python-helios-client.git
 Vcs-Browser: https://github.com/cartesiantheatre/python-helios-client
@@ -26,7 +26,9 @@ Architecture: all
 Multi-Arch: foreign
 Depends:
     ${misc:Depends},
-    ${python3:Depends}
+    ${python3:Depends},
+    python3-all,
+    python3-setuptools
 Description: pure python module to access a remote Helios server (Python 3)
  Helios is an intelligent music recommendation platform.
  .

@@ -1,17 +1,20 @@
 #!/usr/bin/python3
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2022 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2023 Cartesian Theatre. All rights reserved.
 #
 
 # Other imports...
 import json
 import marshmallow
+import os
 import simplejson
 from tqdm import tqdm
 import urllib3
 import re
 import requests
+import shutil
+import tempfile
 import helios
 from helios import __version__
 from helios.chunked_upload import chunked_upload
@@ -25,7 +28,10 @@ _ = gettext.gettext
 class client:
 
     # Class attribute for JSON MIME type...
-    _json_mime_type  = 'application/json'
+    _json_mime_type     = 'application/json'
+
+    # Class attribute for compressed encoding...
+    _accept_encoding    = 'br, gzip, deflate'
 
     # Constructor...
     def __init__(self, host, port=6440, api_key=None, timeout_connect=None, timeout_read=None, tls=True, tls_ca_file=None, tls_certificate=None, tls_key=None, verbose=False, version='v1'):
@@ -83,6 +89,33 @@ class client:
 #            requests_log.setLevel(logging.DEBUG)
 #            requests_log.propagate = True
 
+    # Add the given learning example triplet...
+    def add_learning_example(self, anchor_song_reference, positive_song_reference, negative_song_reference):
+
+        # Initialize headers...
+        headers                     = self._common_headers
+        headers['Accept']           = client._json_mime_type
+        headers['Content-Type']     = client._json_mime_type
+
+        # Construct learning example object...
+        learning_example = helios.requests.LearningExample(
+            anchor_song_reference,
+            positive_song_reference,
+            negative_song_reference)
+
+        learning_examples = [learning_example]
+
+        # Construct learning example schema to transform learning example into
+        #  JSON...
+        learning_example_schema = helios.requests.LearningExampleSchema(many=True)
+
+        # Submit request...
+        response = self._submit_request(
+            endpoint='/learning/examples',
+            method='POST',
+            headers=headers,
+            data=learning_example_schema.dumps(learning_examples))
+
     # Add a new song to your music catalogue, optionally store it after
     #  analysis, and optionally invoke a progress callback of the from
     #  foo(bytes_read, new_bytes, total_bytes)...
@@ -126,6 +159,37 @@ class client:
         # Parse response...
         return stored_song_response
 
+    # Delete all learning examples...
+    def delete_all_learning_examples(self):
+
+        # Initialize headers...
+        headers = self._common_headers
+
+        # Submit request...
+        self._submit_request(
+            endpoint='/learning/examples/all',
+            method='DELETE',
+            headers=headers)
+
+    # Delete a learning example...
+    def delete_learning_example(self, anchor_song_reference, positive_song_reference, negative_song_reference):
+
+        # Initialize headers...
+        headers                         = self._common_headers
+
+        # Prepare request...
+        query_parameters                = {}
+        query_parameters['anchor']      = anchor_song_reference
+        query_parameters['positive']    = positive_song_reference
+        query_parameters['negative']    = negative_song_reference
+
+        # Submit request...
+        response = self._submit_request(
+            endpoint='/learning/examples',
+            method='DELETE',
+            headers=headers,
+            query_parameters=query_parameters)
+
     # Delete an asynchronous job running on the server by job ID...
     def delete_job(self, job_id):
 
@@ -162,30 +226,109 @@ class client:
             headers=headers)
 
     # Retrieve a list of all songs...
-    def get_all_songs(self, page=1, page_size=100):
+    def get_all_songs(self, page=None, page_size=None, progress=False, save_catalogue=None):
+
+        # 3m32.299s with pagination for entire catalogue
 
         # Initialize headers...
-        headers                         = self._common_headers
-        headers['Accept']               = client._json_mime_type
+        headers                             = self._common_headers
+        headers['Accept']                   = client._json_mime_type
+        headers['Accept-Encoding']          = client._accept_encoding
 
-        # Prepare request...
-        query_parameters                = {}
-        query_parameters['page']        = int(page)
-        query_parameters['page_size']   = int(page_size)
+        # Endpoint to retrieve all songs...
+        url = self._get_endpoint_url('/songs/all')
+
+        # Storage for query parameters...
+        query_parameters                    = {}
+
+        # Create a temp file for the decompressed version...
+        [tempfile_fd, tempfile_name] = tempfile.mkstemp(
+            prefix="helios_client_get_all_songs_")
+
+        # If user requested pagination, format endpoint URL with that as query
+        #  parameters...
+        if page is not None and page_size is not None:
+            url = self._get_endpoint_url(F'/songs/all?page={int(page)}&page_size={int(page_size)}')
+
+        # Flag to requests on whether to verify server certificate. This can be
+        #  either a boolean or a string according to documentation...
+        verify = False
+
+        # Tuple to public and private keys, if set...
+        public_private_key = None
+
+        # TLS was requested, so prepare to use associated settings...
+        if self._tls:
+
+            # If no certificate authority was provided, disable server
+            #  certificate verification...
+            if not self._tls_ca_file:
+                verify = False
+                urllib3.disable_warnings()
+
+            # Otherwise set to path to certificate authority file...
+            else:
+                verify = self._tls_ca_file
+
+            # Set certificate public and private key, if provided...
+            if self._tls_certificate or self._tls_key:
+                public_private_key = (self._tls_certificate, self._tls_key)
 
         # Submit request, extract, construct each stored song and add to list...
         try:
 
             # Submit request...
-            response = self._submit_request(
-                endpoint='/songs/all',
-                method='GET',
+            response = self._session.get(
+                url=url,
                 headers=headers,
-                query_parameters=query_parameters)
+                stream=True,
+                verify=verify)
+
+            # We reached the server. If we didn't get an expected response,
+            #  raise an exception...
+            response.raise_for_status()
+
+            # Get total size of response body...
+            total_size = int(response.headers.get('content-length'))
+
+            # Show progress if requested...
+            if progress:
+                progress_bar = tqdm(total=total_size, unit=_('B'), unit_scale=True)
+
+            # As each chunk streams into memory, write it out...
+            for chunk in response.iter_content(chunk_size=8192):
+
+                # But skip keep-alive chunks...
+                if not chunk:
+                    continue
+
+                # Advance progress, if requested...
+                if progress:
+                    progress_bar.update(len(chunk))
+
+                # Save response to temp file...
+                os.write(tempfile_fd, chunk)
+
+            # Close temp file...
+            os.close(tempfile_fd)
+
+            # Deallocate progress bar if we created one...
+            if progress:
+                progress_bar.close()
+
+            # Load the JSON from disk...
+            json_data = None
+            with open(tempfile_name, "r") as file:
+                json_data = json.load(file)
 
             # Validate response...
             stored_song_schema = helios.responses.StoredSongSchema(many=True)
-            all_songs_list = stored_song_schema.load(response.json())
+            all_songs_list = stored_song_schema.load(json_data)
+
+            # If user requested to save response to disk, move the temp file
+            #  to user's preference...
+            if save_catalogue:
+                shutil.move(tempfile_name, save_catalogue)
 
         # No more songs...
         except helios.exceptions.NotFound:
@@ -247,9 +390,37 @@ class client:
         # Parse response...
         return system_status
 
+    # Get information about available genres on the server...
+    def get_genres_information(self):
+
+        # Initialize headers...
+        headers                 = self._common_headers
+        headers['Accept']       = client._json_mime_type
+
+        # Submit request, extract, construct each genre information and add to
+        #  list...
+        try:
+
+            # Submit request...
+            response = self._submit_request(
+                endpoint='/songs/genres',
+                method='GET',
+                headers=headers)
+
+            # Validate response...
+            genre_information_schema = helios.responses.GenreInformationSchema(many=True)
+            genre_information_list = genre_information_schema.load(response.json())
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as some_exception:
+            raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
+
+        # Return list of genres and information about each...
+        return genre_information_list
+
     # Get job status from server, returning the HTTP status code and the
     #  object the server sent us...
-    def get_job_status(self, job_id):
+    def get_job_status(self, job_id, schema):
 
         # Initialize headers...
         headers                 = self._common_headers
@@ -274,11 +445,10 @@ class client:
             if response.status_code == 200:
 
                 # Storage for list of stored songs...
-                stored_song_schema = helios.responses.StoredSongSchema(many=True)
-                songs_list = stored_song_schema.load(response.json())
+                response_object = schema.load(response.json())
 
                 # Return status code and deserialized object to caller...
-                return (response.status_code, songs_list)
+                return (response.status_code, response_object)
 
             # Status update ready...
             elif response.status_code == 202:
@@ -303,12 +473,42 @@ class client:
         except marshmallow.exceptions.MarshmallowError as some_exception:
             raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
 
+    # Retrieve a list of all learning examples...
+    def get_learning_examples(self):
+
+        # Initialize headers...
+        headers                         = self._common_headers
+        headers['Accept']               = client._json_mime_type
+        headers['Accept-Encoding']      = client._accept_encoding
+
+        # Submit request, extract, construct each learning example and add to
+        #  list...
+        try:
+
+            # Submit request...
+            response = self._submit_request(
+                endpoint='/learning/examples/all',
+                method='GET',
+                headers=headers)
+
+            # Validate response...
+            learning_example_schema = helios.responses.LearningExampleSchema(many=True)
+            all_learning_examples = learning_example_schema.load(response.json())
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as some_exception:
+            raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
+
+        # Return list of learning examples...
+        return all_learning_examples
+
     # Retrieve a list of random songs...
     def get_random_songs(self, size=1):
 
         # Initialize headers...
         headers                         = self._common_headers
         headers['Accept']               = client._json_mime_type
+        headers['Accept-Encoding']      = client._accept_encoding
 
         # Prepare request...
         query_parameters                = {}
@@ -346,6 +546,7 @@ class client:
         headers                     = self._common_headers
         headers['Accept']           = client._json_mime_type
         headers['Content-Type']     = client._json_mime_type
+        headers['Accept-Encoding']  = client._accept_encoding
         headers['X-Helios-Expect']  = '202-accepted'
 
         # Validate similarity_search_dict against schema...
@@ -405,7 +606,9 @@ class client:
                 time.sleep(1.0)
 
                 # Query server for response code and object...
-                status_code, response_object = self.get_job_status(job_id)
+                status_code, response_object = self.get_job_status(
+                    job_id,
+                    helios.responses.StoredSongSchema(many=True))
 
                 # Result is ready...
                 if status_code == 200:
@@ -563,7 +766,7 @@ class client:
 
             # Show progress if requested...
             if progress:
-                progress_bar = tqdm(total=total_size, unit=_('bytes'), unit_scale=True)
+                progress_bar = tqdm(total=total_size, unit=_('B'), unit_scale=True)
 
             # Write out the file...
             with open(output, 'wb') as file:
@@ -642,6 +845,129 @@ class client:
 
         # Parse response...
         return stored_song_response
+
+    # Perform training on learning examples...
+    def perform_training(self, progress=False):
+
+        # Initialize headers...
+        headers                     = self._common_headers
+        headers['Accept']           = client._json_mime_type
+        headers['Content-Type']     = client._json_mime_type
+        headers['X-Helios-Expect']  = '202-accepted'
+
+        # Construct perform training object...
+        perform_training = helios.requests.PerformTraining()
+
+        # Construct perform training schema to transform request into JSON...
+        perform_training_schema = helios.requests.PerformTrainingSchema()
+
+        # Submit request...
+        response = self._submit_request(
+            endpoint='/learning/perform',
+            method='POST',
+            headers=headers,
+            data=perform_training_schema.dumps(perform_training))
+
+        # Verify server sent Location response header...
+        if 'Location' not in response.headers:
+            raise helios.exceptions.UnexpectedResponse(
+                _('Location header missing from server response.'))
+
+        # Parse Location header for job ID which points to where job status can
+        #  be tracked...
+        location = response.headers.get('Location')
+        location_regex = re.compile(FR"^/{self._version}/status/jobs/(\d+)$")
+        matches = re.fullmatch(location_regex, location)
+
+        # Check to ensure job ID could be parsed...
+        if not matches:
+            raise helios.exceptions.UnexpectedResponse(
+                _(F'Location header malformed: {location}'))
+
+        # Extract job ID...
+        job_id = matches.group(1)
+
+        # Log job ID...
+        if self._verbose:
+            print(_(F'Server reported job started with job ID {job_id}...'))
+
+        # Optional progress bar, if requested by user and we have enough
+        #  information to manage one...
+        progress_bar = None
+
+        # Try to monitor progress until final update is available...
+        try:
+
+            # Status code received from server each time we poll it...
+            status_code = 0
+
+            # Keep polling until final update is received...
+            while True:
+
+                # Wait a second after each query...
+                time.sleep(1.0)
+
+                # Query server for response code and object...
+                status_code, response_object = self.get_job_status(
+                    job_id,
+                    helios.responses.TrainingReportSchema())
+
+                # Result is ready...
+                if status_code == 200:
+
+                    # Get the training report...
+                    training_report = response_object
+
+                    # Return it to user...
+                    return training_report
+
+                # Status update available, but final result not ready yet...
+                if status_code == 202:
+
+                    # Get the job's status...
+                    job_status = response_object
+
+                    # If a progress bar was requested and does not exist yet,
+                    #  construct it...
+                    if progress and progress_bar is None and job_status.progress_total is not None:
+                        progress_bar = tqdm(total=job_status.progress_total)
+
+                    # If a progress bar exists, update it...
+                    if progress_bar is not None:
+
+                        # Update progress bar...
+                        progress_bar.update(job_status.progress_current)
+
+                        # Set description...
+                        progress_bar.set_description(job_status.message)
+
+                # For all other responses treat it as though it was unexpected...
+                else:
+                    raise helios.exceptions.UnexpectedResponse(
+                        _(F'Unexpected server response while polling job status: {response.status_code}'))
+
+        # User trying to abort...
+        except KeyboardInterrupt as someException:
+
+            # Notify user we heard them...
+            print(_(F'\rAborting. Please wait a moment...'))
+
+            # Ask server to delete the job...
+            self.delete_job(job_id)
+
+            # Propagate interrupt up the chain...
+            raise someException
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as some_exception:
+            raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
+
+        # Cleanup tasks...
+        finally:
+
+            # Deallocate progress bar if we created one...
+            if progress_bar is not None:
+                progress_bar.close()
 
     # Take a server's error response that it emitted as JSON and raise an
     #  appropriate client exception...

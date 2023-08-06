@@ -1,15 +1,15 @@
 Metadata-Version: 2.1
 Name: helios-client
-Version: 0.3.20230718.post1
+Version: 0.3.20230805.post1
 Summary: Pure python 3 module to communicate with a Helios server.
 Home-page: https://www.heliosmusic.io
 Author: Cartesian Theatre
-Author-email: info@heliosmusic.io
+Author-email: kip@heliosmusic.io
 License: LGPL
 Project-URL: Bug Tracker, https://github.com/cartesiantheatre/python-helios-client/issues
 Project-URL: Documentation, https://heliosmusic.io/api.html
 Project-URL: Source Code, https://github.com/cartesiantheatre/python-helios-client
-Keywords: music,similarity,match,catalogue,digital,signal,processing
+Keywords: music,similarity,match,catalogue,digital,signal,processing,machine,learning
 Platform: UNKNOWN
 Classifier: Development Status :: 4 - Beta
 Classifier: Environment :: Console
@@ -79,7 +79,7 @@ $ pip install helios-client
 
 ## Licensing
 
-This Python module is released under the terms of the [LGPL 3.0](https://www.gnu.org/licenses/lgpl-3.0.html) or greater. Copyright (C) 2015-2022 Cartesian Theatre. See [Copying](./Copying) for more information.
+This Python module is released under the terms of the [LGPL 3.0](https://www.gnu.org/licenses/lgpl-3.0.html) or greater. Copyright (C) 2015-2023 Cartesian Theatre. See [Copying](./Copying) for more information.
 
 
 

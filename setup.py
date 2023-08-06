@@ -1,11 +1,12 @@
+#!/usr/bin/python3
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2022 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2023 Cartesian Theatre. All rights reserved.
 #
 
 # Import modules...
 from __future__ import with_statement
-from setuptools import setup, find_namespace_packages
+from setuptools import setup, find_packages
 import importlib.util
 import os
 import sys
@@ -41,7 +42,7 @@ setup(
 
     # Metadata...
     author='Cartesian Theatre',
-    author_email='info@heliosmusic.io',
+    author_email='kip@heliosmusic.io',
     classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -61,7 +62,16 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     description='Pure python 3 module to communicate with a Helios server.',
-    keywords=['music', 'similarity', 'match', 'catalogue', 'digital', 'signal', 'processing'],
+    keywords=[
+        'music',
+        'similarity',
+        'match',
+        'catalogue',
+        'digital',
+        'signal',
+        'processing',
+        'machine',
+        'learning'],
     license='LGPL',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',
@@ -78,14 +88,14 @@ setup(
     include_package_data=True,
     install_requires=[
         'attrs >= 18.2.0',
+        'brotli',
         'marshmallow >= 3.16.0',
         'requests',
         'simplejson',
-        'tqdm',
-        'wheel'
+        'tqdm'
     ],
     package_dir={'': 'Source'},
-    packages=find_namespace_packages(where='Source'),
+    packages=find_packages(where='Source'),
     python_requires='>= 3.7',
     zip_safe=True
 )

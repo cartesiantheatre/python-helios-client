@@ -7,6 +7,7 @@
 # Imports...
 import attr
 from marshmallow import Schema, fields, post_load
+from helios.responses import LearningExample, LearningExampleSchema
 
 # i18n...
 import gettext
@@ -78,6 +79,22 @@ class PatchSongSchema(Schema):
     @post_load
     def make_patch_song(self, data, **kwargs):
         return PatchSong(**data)
+
+
+# Perform training request...
+@attr.s
+class PerformTraining:
+    pass
+
+
+# Perform training schema request...
+class PerformTrainingSchema(Schema):
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_perform_training(self, data, **kwargs):
+        return PerformTraining(**data)
+
 
 # Similarity search request...
 @attr.s

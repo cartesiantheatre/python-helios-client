@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2022 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2023 Cartesian Theatre. All rights reserved.
 #
 
 # System imports...
@@ -10,6 +10,107 @@ import datetime
 # Other imports...
 import attr
 from marshmallow import Schema, fields, post_load, EXCLUDE
+
+
+# Server error response...
+@attr.s
+class Error:
+    code    = attr.ib(validator=attr.validators.instance_of(int))
+    details = attr.ib(validator=attr.validators.instance_of(str))
+    summary = attr.ib(validator=attr.validators.instance_of(str))
+
+
+# Server error response schema...
+class ErrorSchema(Schema):
+
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
+
+    # Fields...
+    code            = fields.Integer(required=True)
+    details         = fields.String(required=True)
+    summary         = fields.String(required=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_error(self, data, **kwargs):
+        return Error(**data)
+
+
+# Genre information...
+@attr.s
+class GenreInformation:
+    genre               = attr.ib(validator=attr.validators.instance_of(str))
+    count               = attr.ib(validator=attr.validators.instance_of(int))
+
+
+# Genre information schema...
+class GenreInformationSchema(Schema):
+
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
+
+    # Fields...
+    genre               = fields.String(required=True)
+    count               = fields.Integer(required=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_genre_information(self, data, **kwargs):
+        return GenreInformation(**data)
+
+
+# Learning example...
+@attr.s
+class LearningExample:
+    anchor              = attr.ib(validator=attr.validators.instance_of(str))
+    positive            = attr.ib(validator=attr.validators.instance_of(str))
+    negative            = attr.ib(validator=attr.validators.instance_of(str))
+
+
+# learning example schema...
+class LearningExampleSchema(Schema):
+
+    # Fields...
+    anchor              = fields.String(allow_none=True)
+    positive            = fields.String(allow_none=True)
+    negative            = fields.String(allow_none=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_learning_example(self, data, **kwargs):
+        return LearningExample(**data)
+
+
+# Job status response...
+@attr.s
+class JobStatus:
+    eta                 = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+    message             = attr.ib(default='', validator=attr.validators.instance_of(str))
+    progress_current    = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+    progress_rate       = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+    progress_total      = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
+
+
+# Job status response schema...
+class JobStatusSchema(Schema):
+
+    # Fields...
+    eta                 = fields.Integer(required=False)
+    message             = fields.String(required=True)
+    progress_current    = fields.Integer(required=False)
+    progress_rate       = fields.Integer(required=False)
+    progress_total      = fields.Integer(required=False)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_error(self, data, **kwargs):
+        return JobStatus(**data)
+
 
 # Stored song response after adding, modifying, or retrieving a song...
 @attr.s
@@ -43,7 +144,7 @@ class StoredSongSchema(Schema):
     artist              = fields.String(required=True)
     beats_per_minute    = fields.Float(required=True)
     duration            = fields.Integer(required=True)
-    fingerprint         = fields.String(required=True)
+    fingerprint         = fields.String(required=False)
     genre               = fields.String(required=True)
     id                  = fields.Integer(required=True)
     isrc                = fields.String(required=True)
@@ -56,59 +157,6 @@ class StoredSongSchema(Schema):
     @post_load
     def make_stored_song(self, data, **kwargs):
         return StoredSong(**data)
-
-
-# Server error response...
-@attr.s
-class Error:
-    code    = attr.ib(validator=attr.validators.instance_of(int))
-    details = attr.ib(validator=attr.validators.instance_of(str))
-    summary = attr.ib(validator=attr.validators.instance_of(str))
-
-
-# Server error response schema...
-class ErrorSchema(Schema):
-
-    # Don't raise a ValidationError on load() when server's response contains
-    #  new fields the client may not recognize yet...
-    class Meta:
-        unknown = EXCLUDE
-
-    # Fields...
-    code            = fields.Integer(required=True)
-    details         = fields.String(required=True)
-    summary         = fields.String(required=True)
-
-    # Callback to receive dictionary of deserialized data...
-    @post_load
-    def make_error(self, data, **kwargs):
-        return Error(**data)
-
-
-# Job status response...
-@attr.s
-class JobStatus:
-    eta                 = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
-    message             = attr.ib(default='', validator=attr.validators.instance_of(str))
-    progress_current    = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
-    progress_rate       = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
-    progress_total      = attr.ib(default=None, validator=attr.validators.optional(attr.validators.instance_of(int)))
-
-
-# Job status response schema...
-class JobStatusSchema(Schema):
-
-    # Fields...
-    eta                 = fields.Integer(required=False)
-    message             = fields.String(required=True)
-    progress_current    = fields.Integer(required=False)
-    progress_rate       = fields.Integer(required=False)
-    progress_total      = fields.Integer(required=False)
-
-    # Callback to receive dictionary of deserialized data...
-    @post_load
-    def make_error(self, data, **kwargs):
-        return JobStatus(**data)
 
 
 # CPU load status field of system's CPU status request response...
@@ -260,3 +308,30 @@ class SystemStatusSchema(Schema):
     @post_load
     def make_system_status(self, data, **kwargs):
         return SystemStatus(**data)
+
+
+# Training report response...
+@attr.s
+class TrainingReport:
+    accuracy        = attr.ib(validator=attr.validators.instance_of(float))
+    gpu_accelerated = attr.ib(validator=attr.validators.instance_of(bool))
+    total_time      = attr.ib(validator=attr.validators.instance_of(int))
+
+
+# Training report response schema...
+class TrainingReportSchema(Schema):
+
+    # Don't raise a ValidationError on load() when system's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
+
+    # Fields...
+    accuracy        = fields.Float(required=True)
+    gpu_accelerated = fields.Bool(required=True)
+    total_time      = fields.Integer(required=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_training_report(self, data, **kwargs):
+        return TrainingReport(**data)
