@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2023 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2024 Cartesian Theatre. All rights reserved.
 #
 
 # System imports...

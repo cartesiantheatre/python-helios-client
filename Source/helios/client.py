@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 #   Helios, intelligent music.
-#   Copyright (C) 2015-2023 Cartesian Theatre. All rights reserved.
+#   Copyright (C) 2015-2024 Cartesian Theatre. All rights reserved.
 #
 
 # Other imports...
@@ -13,6 +13,7 @@ from tqdm import tqdm
 import urllib3
 import re
 import requests
+from requests.adapters import HTTPAdapter, Retry
 import shutil
 import tempfile
 import helios
@@ -25,7 +26,7 @@ import gettext
 _ = gettext.gettext
 
 # Class to handle all client communication with a Helios server...
-class client:
+class Client:
 
     # Class attribute for JSON MIME type...
     _json_mime_type     = 'application/json'
@@ -58,9 +59,13 @@ class client:
         self._verbose           = verbose
         self._version           = version
 
+        # Prepare a Retry object that will tell our HTTP adapter to retry a
+        #  total number of three times and wait one second in between...
+        retries = Retry(total=5, backoff_factor=1.0)
+
         # Construct an adaptor to automatically make three retry attempts on
         #  failed DNS lookups and connection timeouts...
-        self._adapter = requests.adapters.HTTPAdapter()   # Set constructor to max_retries=3 for three retries
+        self._adapter = HTTPAdapter(max_retries=retries)
         self._session.mount('http://', self._adapter)
         self._session.mount('https://', self._adapter)
 
@@ -73,8 +78,9 @@ class client:
             raise Exception(_('No port provided.'))
 
         # Initialize headers common to all queries...
-        self._common_headers                = {}
-        self._common_headers['User-Agent']  = F'helios-python {get_version()}'
+        self._common_headers                    = {}
+        self._common_headers['Accept-Encoding'] = 'identity'
+        self._common_headers['User-Agent']      = F'helios-python {get_version()}'
 
         # If an API key was provided by user, add it to request headers...
         if api_key is not None:
@@ -94,8 +100,8 @@ class client:
 
         # Initialize headers...
         headers                     = self._common_headers
-        headers['Accept']           = client._json_mime_type
-        headers['Content-Type']     = client._json_mime_type
+        headers['Accept']           = Client._json_mime_type
+        headers['Content-Type']     = Client._json_mime_type
 
         # Construct learning example object...
         learning_example = helios.requests.LearningExample(
@@ -123,8 +129,9 @@ class client:
 
         # Initialize headers...
         headers                     = self._common_headers
-        headers['Accept']           = client._json_mime_type
-        headers['Content-Type']     = client._json_mime_type
+        headers['Accept']           = Client._json_mime_type
+        headers['Accept-Encoding']  = Client._accept_encoding
+        headers['Content-Type']     = Client._json_mime_type
 
         # Prepare request...
         query_parameters            = {}
@@ -232,8 +239,8 @@ class client:
 
         # Initialize headers...
         headers                             = self._common_headers
-        headers['Accept']                   = client._json_mime_type
-        headers['Accept-Encoding']          = client._accept_encoding
+        headers['Accept']                   = Client._json_mime_type
+        headers['Accept-Encoding']          = Client._accept_encoding
 
         # Endpoint to retrieve all songs...
         url = self._get_endpoint_url('/songs/all')
@@ -379,8 +386,9 @@ class client:
     def get_system_status(self):
 
         # Initialize headers...
-        headers                 = self._common_headers
-        headers['Accept']       = client._json_mime_type
+        headers                     = self._common_headers
+        headers['Accept']           = Client._json_mime_type
+        headers['Accept-Encoding']  = Client._accept_encoding
 
         # Submit request...
         response = self._submit_request(
@@ -406,7 +414,7 @@ class client:
 
         # Initialize headers...
         headers                 = self._common_headers
-        headers['Accept']       = client._json_mime_type
+        headers['Accept']       = Client._json_mime_type
 
         # Submit request, extract, construct each genre information and add to
         #  list...
@@ -435,7 +443,7 @@ class client:
 
         # Initialize headers...
         headers                 = self._common_headers
-        headers['Accept']       = client._json_mime_type
+        headers['Accept']       = Client._json_mime_type
 
         # Format endpoint...
         endpoint = F'/status/jobs/{job_id}'
@@ -489,8 +497,8 @@ class client:
 
         # Initialize headers...
         headers                         = self._common_headers
-        headers['Accept']               = client._json_mime_type
-        headers['Accept-Encoding']      = client._accept_encoding
+        headers['Accept']               = Client._json_mime_type
+        headers['Accept-Encoding']      = Client._accept_encoding
 
         # Submit request, extract, construct each learning example and add to
         #  list...
@@ -513,13 +521,22 @@ class client:
         # Return list of learning examples...
         return all_learning_examples
 
+    # Get a single random song...
+    def get_random_song(self):
+
+        # Retrieve the list of a single song...
+        random_songs_list = self.get_random_songs(size=1)
+
+        # Return it...
+        return random_songs_list[0]
+
     # Retrieve a list of random songs...
     def get_random_songs(self, size=1):
 
         # Initialize headers...
         headers                         = self._common_headers
-        headers['Accept']               = client._json_mime_type
-        headers['Accept-Encoding']      = client._accept_encoding
+        headers['Accept']               = Client._json_mime_type
+        headers['Accept-Encoding']      = Client._accept_encoding
 
         # Prepare request...
         query_parameters                = {}
@@ -555,9 +572,9 @@ class client:
 
         # Initialize headers...
         headers                     = self._common_headers
-        headers['Accept']           = client._json_mime_type
-        headers['Content-Type']     = client._json_mime_type
-        headers['Accept-Encoding']  = client._accept_encoding
+        headers['Accept']           = Client._json_mime_type
+        headers['Content-Type']     = Client._json_mime_type
+        headers['Accept-Encoding']  = Client._accept_encoding
         headers['X-Helios-Expect']  = '202-accepted'
 
         # Validate similarity_search_dict against schema...
@@ -695,7 +712,8 @@ class client:
 
         # Initialize headers...
         headers                         = self._common_headers
-        headers['Accept']               = client._json_mime_type
+        headers['Accept']               = Client._json_mime_type
+        headers['Accept-Encoding']      = Client._accept_encoding
 
         # Submit request...
         response = self._submit_request(
@@ -720,14 +738,48 @@ class client:
         # Return single stored song model...
         return songs_list[0]
 
+    # Retrieve the artwork for the given song as a tupel of a byte array and
+    #  MIME type...
+    def get_song_artwork(self, song_id=None, song_reference=None, maximum_height=None, maximum_width=None):
+
+        # Get the complete URL...
+        if song_id:
+            endpoint = F'/songs/download_artwork/by_id/{song_id}'
+        elif song_reference:
+            endpoint = F'/songs/download_artwork/by_reference/{song_reference}'
+        else:
+            raise helios.exceptions.ExceptionBase(_('You must provide either a song_id or a song_reference.'))
+
+        # Initialize headers...
+        headers = self._common_headers
+
+        # Prepare query parameters...
+        query_parameters                        = {}
+        if maximum_height:
+            query_parameters['maximum_height']  = int(maximum_height)
+        if maximum_width:
+            query_parameters['maximum_width']   = int(maximum_width)
+
+        # Submit request...
+        response = self._submit_request(
+            endpoint=endpoint,
+            method='GET',
+            headers=headers,
+            query_parameters=query_parameters)
+
+        # Return binary data array and MIME type...
+        return response.content, response.headers.get('Content-Type')
+
     # Download a song by ID or reference...
-    def get_song_download(self, song_id, song_reference, output, progress=False):
+    def get_song_download(self, output, song_id=None, song_reference=None, tui_progress=False, progress_callback=None):
 
         # Get the complete URL...
         if song_id:
             url = self._get_endpoint_url(F'/songs/download/by_id/{song_id}')
         elif song_reference:
             url = self._get_endpoint_url(F'/songs/download/by_reference/{song_reference}')
+        else:
+            raise Exception(_('You must provide either a song_id or a song_reference when calling get_song_download.'))
 
         # Initialize headers...
         headers             = self._common_headers
@@ -775,9 +827,12 @@ class client:
             # Get total size of response body...
             total_size = int(response.headers.get('content-length'))
 
-            # Show progress if requested...
-            if progress:
-                progress_bar = tqdm(total=total_size, unit=_('B'), unit_scale=True)
+            # Total size of downloaded data...
+            current_size = 0
+
+            # Show TUI progress if requested...
+            if tui_progress:
+                tui_progress_bar = tqdm(total=total_size, unit=_('B'), unit_scale=True)
 
             # Write out the file...
             with open(output, 'wb') as file:
@@ -792,13 +847,23 @@ class client:
                     # Append chunk to file...
                     file.write(chunk)
 
-                    # Advance progress, if requested...
-                    if progress:
-                        progress_bar.update(len(chunk))
+                    # Get current chunk size...
+                    chunk_size = len(chunk)
 
-            # Deallocate progress bar if we created one...
-            if progress:
-                progress_bar.close()
+                    # Add to total downloaded size...
+                    current_size += chunk_size
+
+                    # Advance TUI progress, if requested...
+                    if tui_progress:
+                        tui_progress_bar.update(chunk_size)
+
+                    # If user provided a progress callback, invoke it...
+                    if progress_callback:
+                        progress_callback(current_size=current_size, total_size=total_size)
+
+            # Deallocate TUI progress bar if we created one...
+            if tui_progress:
+                tui_progress_bar.close()
 
         # Connection problem...
         except requests.exceptions.ConnectionError as some_exception:
@@ -813,9 +878,10 @@ class client:
     def modify_song(self, patch_song_dict, store=None, song_id=None, song_reference=None):
 
         # Initialize headers...
-        headers                 = self._common_headers
-        headers['Accept']       = client._json_mime_type
-        headers['Content-Type'] = client._json_mime_type
+        headers                     = self._common_headers
+        headers['Accept']           = Client._json_mime_type
+        headers['Content-Type']     = Client._json_mime_type
+        headers['Accept-Encoding']  = Client._accept_encoding
 
         # Prepare endpoint...
         if song_id is not None:
@@ -858,12 +924,12 @@ class client:
         return stored_song_response
 
     # Perform training on learning examples...
-    def perform_training(self, progress=False):
+    def perform_training(self, tui_progress=False):
 
         # Initialize headers...
         headers                     = self._common_headers
-        headers['Accept']           = client._json_mime_type
-        headers['Content-Type']     = client._json_mime_type
+        headers['Accept']           = Client._json_mime_type
+        headers['Content-Type']     = Client._json_mime_type
         headers['X-Helios-Expect']  = '202-accepted'
 
         # Construct perform training object...
@@ -902,9 +968,9 @@ class client:
         if self._verbose:
             print(_(F'Server reported job started with job ID {job_id}...'))
 
-        # Optional progress bar, if requested by user and we have enough
+        # Optional TUI progress bar, if requested by user and we have enough
         #  information to manage one...
-        progress_bar = None
+        tui_progress_bar = None
 
         # Try to monitor progress until final update is available...
         try:
@@ -938,19 +1004,19 @@ class client:
                     # Get the job's status...
                     job_status = response_object
 
-                    # If a progress bar was requested and does not exist yet,
-                    #  construct it...
-                    if progress and progress_bar is None and job_status.progress_total is not None:
-                        progress_bar = tqdm(total=job_status.progress_total)
+                    # If a TUI progress bar was requested and does not exist
+                    #  yet, construct it...
+                    if tui_progress and tui_progress_bar is None and job_status.progress_total is not None:
+                        tui_progress_bar = tqdm(total=job_status.progress_total)
 
-                    # If a progress bar exists, update it...
-                    if progress_bar is not None:
+                    # If a TUI progress bar exists, update it...
+                    if tui_progress_bar is not None:
 
                         # Update progress bar...
-                        progress_bar.update(job_status.progress_current)
+                        tui_progress_bar.update(job_status.progress_current)
 
                         # Set description...
-                        progress_bar.set_description(job_status.message)
+                        tui_progress_bar.set_description(job_status.message)
 
                 # For all other responses treat it as though it was unexpected...
                 else:
@@ -976,9 +1042,9 @@ class client:
         # Cleanup tasks...
         finally:
 
-            # Deallocate progress bar if we created one...
-            if progress_bar is not None:
-                progress_bar.close()
+            # Deallocate TUI progress bar if we created one...
+            if tui_progress_bar is not None:
+                tui_progress_bar.close()
 
     # Take a server's error response that it emitted as JSON and raise an
     #  appropriate client exception...
@@ -1001,31 +1067,31 @@ class client:
 
         # Bad request exception. Suitable on a 400...
         if code == 400:
-            raise helios.exceptions.BadRequest(code, details, summary)
+            raise helios.exceptions.BadRequest(code, details, summary) from None
 
         # Unauthorized exception. Suitable on a 401...
         elif code == 401:
-            raise helios.exceptions.Unauthorized(code, details, summary)
+            raise helios.exceptions.Unauthorized(code, details, summary) from None
 
         # Not found exception. Suitable on a 404...
         elif code == 404:
-            raise helios.exceptions.NotFound(code, details, summary)
+            raise helios.exceptions.NotFound(code, details, summary) from None
 
         # Conflict exception. Suitable on a 409...
         elif code == 409:
-            raise helios.exceptions.Conflict(code, details, summary)
+            raise helios.exceptions.Conflict(code, details, summary) from None
 
         # Internal server error exception. Suitable on a 500...
         elif code == 500:
-            raise helios.exceptions.InternalServer(code, details, summary)
+            raise helios.exceptions.InternalServer(code, details, summary) from None
 
         # Insufficient storage exception. Suitable on a 507...
         elif code == 507:
-            raise helios.exceptions.InsufficientStorage(code, details, summary)
+            raise helios.exceptions.InsufficientStorage(code, details, summary) from None
 
         # Some other code...
         else:
-            raise helios.exceptions.ResponseExceptionBase(code, details, summary)
+            raise helios.exceptions.ResponseExceptionBase(code, details, summary) from None
 
     # Send a request to endpoint using method, headers, query parameters, and
     #  body...
@@ -1117,7 +1183,7 @@ class client:
 
             # Unknown method...
             else:
-                raise Exception(F'Unknown method: {method}')
+                raise Exception(F'Unknown method: {method}') from None
 
             # We reached the server. If we didn't get an expected response,
             #  raise an exception...
@@ -1143,7 +1209,7 @@ class client:
             raise helios.exceptions.NotFound(_(F'URL not found at: {url}')) from some_exception
 
         # Server reported an error, raise appropriate exception...
-        except requests.HTTPError as some_exception:
+        except requests.exceptions.HTTPError as some_exception:
             try:
                 some_exception.response.json()
             except simplejson.errors.JSONDecodeError:
