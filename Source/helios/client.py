@@ -14,6 +14,7 @@ import urllib3
 import re
 import requests
 from requests.adapters import HTTPAdapter, Retry
+from requests_toolbelt.utils import user_agent as ua
 import shutil
 import tempfile
 import helios
@@ -77,10 +78,16 @@ class Client:
         if port is None:
             raise Exception(_('No port provided.'))
 
+        # Construct user agent string...
+        user_agent = ua.UserAgentBuilder(
+            name='helios-python',
+            version=get_version())
+        user_agent.include_system()
+
         # Initialize headers common to all queries...
         self._common_headers                    = {}
         self._common_headers['Accept-Encoding'] = 'identity'
-        self._common_headers['User-Agent']      = F'helios-python {get_version()}'
+        self._common_headers['User-Agent']      = user_agent.build()
 
         # If an API key was provided by user, add it to request headers...
         if api_key is not None:

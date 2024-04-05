@@ -13,6 +13,7 @@ Build-Depends:
     python3-marshmallow (>= 3.16.0),
     python3-brotli,
     python3-requests,
+    python3-requests-toolbelt,
     python3-setuptools,
     python3-simplejson,
     python3-tqdm
