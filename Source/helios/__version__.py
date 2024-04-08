@@ -6,4 +6,4 @@
 
 # Module version...
 #  <https://www.python.org/dev/peps/pep-0440/>
-version = '0.3.20240404.post1'
+version = '0.3.20240407.post1'

@@ -78,16 +78,19 @@ class Client:
         if port is None:
             raise Exception(_('No port provided.'))
 
-        # Construct user agent string...
+        # Configure a user agent builder...
         user_agent = ua.UserAgentBuilder(
             name='helios-python',
             version=get_version())
         user_agent.include_system()
 
+        # Build a user agent string from the builder...
+        user_agent_string = user_agent.build()
+
         # Initialize headers common to all queries...
         self._common_headers                    = {}
         self._common_headers['Accept-Encoding'] = 'identity'
-        self._common_headers['User-Agent']      = user_agent.build()
+        self._common_headers['User-Agent']      = user_agent_string
 
         # If an API key was provided by user, add it to request headers...
         if api_key is not None:

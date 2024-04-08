@@ -93,7 +93,8 @@ setup(
         'requests',
         'requests-toolbelt',
         'simplejson',
-        'tqdm'
+        'tqdm',
+        'urllib3'
     ],
     package_dir={'': 'Source'},
     packages=find_packages(where='Source'),
