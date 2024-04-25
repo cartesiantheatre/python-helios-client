@@ -1,4 +1,4 @@
 # please also check http://pypi.debian.net/helios-client/watch
-version=3
+version=4
 opts=uversionmangle=s/(rc|a|b|c)/~$1/ \
-http://pypi.debian.net/helios-client/helios-client-(.+)\.(?:zip|tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))
+https://pypi.debian.net/helios-client/helios-client-(.+)\.(?:zip|tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))

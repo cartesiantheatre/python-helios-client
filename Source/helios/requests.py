@@ -96,6 +96,28 @@ class PerformTrainingSchema(Schema):
         return PerformTraining(**data)
 
 
+# Perform triplet mining request...
+@attr.s
+class PerformTripletMining:
+    search_reference    = attr.ib(default=None)
+    system_rankings     = attr.ib(default=None)
+    user_rankings       = attr.ib(default=None)
+
+
+# Perform triplet mining schema request...
+class PerformTripletMiningSchema(Schema):
+
+    # Fields...
+    search_reference    = fields.String(allow_none=False, required=True)
+    system_rankings     = fields.List(fields.String(allow_none=False, required=True))
+    user_rankings       = fields.List(fields.String(allow_none=False, required=True))
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_perform_triplet_mining(self, data, **kwargs):
+        return PerformTripletMining(**data)
+
+
 # Similarity search request...
 @attr.s
 class SimilaritySearch:

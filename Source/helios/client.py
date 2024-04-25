@@ -62,7 +62,7 @@ class Client:
 
         # Prepare a Retry object that will tell our HTTP adapter to retry a
         #  total number of three times and wait one second in between...
-        retries = Retry(total=5, backoff_factor=1.0)
+        retries = Retry(total=3, backoff_factor=1.0)
 
         # Construct an adaptor to automatically make three retry attempts on
         #  failed DNS lookups and connection timeouts...
@@ -1055,6 +1055,48 @@ class Client:
             # Deallocate TUI progress bar if we created one...
             if tui_progress_bar is not None:
                 tui_progress_bar.close()
+
+    # Perform triplet mining from the system and user generated rankings for the
+    #  given search key and return list of triplets...
+    def perform_triplet_mining(self, search_reference, system_rankings, user_rankings):
+
+        # Initialize headers...
+        headers                     = self._common_headers
+        headers['Accept']           = Client._json_mime_type
+        headers['Content-Type']     = Client._json_mime_type
+        headers['Accept-Encoding']  = Client._accept_encoding
+
+        # Construct perform triplet mining request object...
+        perform_triplet_mining = helios.requests.PerformTripletMining(
+            search_reference,
+            system_rankings,
+            user_rankings)
+
+        # Construct perform triplet mining request schema to transform request
+        #  into JSON...
+        perform_triplet_mining_schema = helios.requests.PerformTripletMiningSchema()
+
+        # Try to submit request, extract, construct each received triplet and
+        #  add to list...
+        try:
+
+            # Submit request...
+            response = self._submit_request(
+                endpoint='/learning/examples/mine',
+                method='POST',
+                headers=headers,
+                data=perform_triplet_mining_schema.dumps(perform_triplet_mining))
+
+            # Validate response...
+            learning_examples_schema = helios.responses.LearningExampleSchema(many=True)
+            learning_examples_list = learning_examples_schema.load(response.json())
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as some_exception:
+            raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
+
+        # Return the server generated list of learning examples...
+        return learning_examples_list
 
     # Take a server's error response that it emitted as JSON and raise an
     #  appropriate client exception...

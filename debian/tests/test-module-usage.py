@@ -42,7 +42,7 @@ if __name__ == '__main__':
     print(F'Local IP address is... {local_ip_address}')
 
     # Create a client...
-    client = helios.client(host=local_ip_address)
+    client = helios.Client(host=local_ip_address)
 
     # Query status...
     print('Querying Helios system status...')
@@ -113,6 +113,23 @@ if __name__ == '__main__':
         # Delete the record...
         client.delete_song(song_id=song.id)
         print('')
+
+    # Generate some example triplets...
+    learning_examples_list = client.perform_triplet_mining(
+        'SEARCH_REFERENCE',
+        [
+            'SONG_1',
+            'SONG_2',
+            'SONG_3',
+            'SONG_4',
+            'SONG_5'
+        ],
+        [
+            'SONG_2',
+            'SONG_1',
+            'SONG_4'
+        ])
+    pprint(learning_examples_list)
 
     # Done...
     print('Done...')

@@ -257,7 +257,7 @@ class SystemLearningStatusSchema(Schema):
 
     # Fields...
     examples                        = fields.Integer(required=True)
-    last_trained                    = fields.DateTime(required=True, format='rfc')
+    last_trained                    = fields.DateTime(required=True, format='iso') # ISO 8601
 
     # Callback to receive dictionary of deserialized data...
     @post_load
@@ -292,7 +292,7 @@ class SystemStatusSchema(Schema):
 
     # Fields...
     algorithm_age   = fields.Integer(required=True)
-    built           = fields.DateTime(required=True, format='rfc')
+    built           = fields.DateTime(required=True, format='iso') # ISO 8601
     configured      = fields.String(required=True)
     cpu             = fields.Nested(SystemCPUStatusSchema(), required=True)
     disk            = fields.Nested(SystemDiskStatusSchema(), required=True)

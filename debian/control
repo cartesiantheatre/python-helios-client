@@ -1,7 +1,7 @@
 Source: python-helios-client
 Section: python
 Priority: optional
-Maintainer: Cartesian Theatre Packaging <packaging@cartesiantheatre.com>
+Maintainer: Cartesian Theatre Packages <packages@cartesiantheatre.com>
 Standards-Version: 4.6.2.0
 Build-Depends:
     debhelper-compat (= 13),
@@ -31,7 +31,7 @@ Depends:
     ${python3:Depends},
     python3-all,
     python3-setuptools
-Description: pure python module to access a remote Helios server (Python 3)
+Description: pure Python module to access a remote Helios server (Python 3)
  Helios is an intelligent music discovery platform.
  .
  This is an easy to use public pure Python 3 module that provides an API to
