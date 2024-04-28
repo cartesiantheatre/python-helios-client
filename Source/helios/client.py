@@ -108,21 +108,25 @@ class Client:
     # Add the given learning example triplet...
     def add_learning_example(self, anchor_song_reference, positive_song_reference, negative_song_reference):
 
+        # Construct a list of the caller's single triplet...
+        single_triplet_list = [(anchor_song_reference, positive_song_reference, negative_song_reference)]
+
+        # Upload to server...
+        self.add_learning_examples(single_triplet_list)
+
+    # Add the given list of learning example triplets...
+    def add_learning_examples(self, learning_example_triplets):
+
         # Initialize headers...
         headers                     = self._common_headers
         headers['Accept']           = Client._json_mime_type
         headers['Content-Type']     = Client._json_mime_type
 
-        # Construct learning example object...
-        learning_example = helios.requests.LearningExample(
-            anchor_song_reference,
-            positive_song_reference,
-            negative_song_reference)
-
-        learning_examples = [learning_example]
-
-        # Construct learning example schema to transform learning example into
-        #  JSON...
+        # Construct list of learning example objects from triplet list...
+        learning_examples = [x for x in learning_example_triplets]
+        
+        # Construct learning example schema to transform learning example list
+        #  into JSON...
         learning_example_schema = helios.requests.LearningExampleSchema(many=True)
 
         # Submit request...
