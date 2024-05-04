@@ -123,8 +123,11 @@ class Client:
         headers['Content-Type']     = Client._json_mime_type
 
         # Construct list of learning example objects from triplet list...
-        learning_examples = [x for x in learning_example_triplets]
-        
+        learning_examples = [
+            helios.requests.LearningExample(anchor, positive, negative) for
+            (anchor, positive, negative) in learning_example_triplets
+        ]
+
         # Construct learning example schema to transform learning example list
         #  into JSON...
         learning_example_schema = helios.requests.LearningExampleSchema(many=True)

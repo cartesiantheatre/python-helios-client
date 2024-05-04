@@ -103,7 +103,17 @@ if __name__ == '__main__':
     print('Retrieving all songs in catalogue...')
     page_songs_list = client.get_all_songs()
 
-    # Delete each one...
+    # Add a learning example...
+    client.add_learning_example(
+        anchor_song_reference='some_reference_1',
+        positive_song_reference='some_reference_2',
+        negative_song_reference='some_reference_3')
+
+    # Check to make sure learning example was stored...
+    learning_examples = client.get_learning_examples()
+    assert(len(learning_examples) == 1)
+
+    # Delete each added song...
     for song in page_songs_list:
 
         # Show what we're going to delete...
@@ -113,6 +123,10 @@ if __name__ == '__main__':
         # Delete the record...
         client.delete_song(song_id=song.id)
         print('')
+
+    # Check to make deleting all the songs deleted the learning example too...
+    learning_examples = client.get_learning_examples()
+    assert(len(learning_examples) == 0)
 
     # Generate some example triplets...
     learning_examples_list = client.perform_triplet_mining(
@@ -129,7 +143,18 @@ if __name__ == '__main__':
             'SONG_1',
             'SONG_4'
         ])
-    pprint(learning_examples_list)
+    assert(learning_examples_list == 
+    [
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_2", negative="SONG_1"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_2", negative="SONG_4"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_2", negative="SONG_3"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_2", negative="SONG_5"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_1", negative="SONG_4"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_1", negative="SONG_3"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_1", negative="SONG_5"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_4", negative="SONG_3"),
+        helios.requests.LearningExample(anchor="SEARCH_REFERENCE", positive="SONG_4", negative="SONG_5")
+    ])
 
     # Done...
     print('Done...')
