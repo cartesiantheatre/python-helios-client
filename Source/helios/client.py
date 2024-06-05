@@ -33,7 +33,8 @@ class Client:
     _json_mime_type     = 'application/json'
 
     # Class attribute for compressed encoding...
-    _accept_encoding    = 'br, gzip, deflate'
+    #_accept_encoding    = 'br, gzip, deflate'
+    _accept_encoding    = 'gzip'
 
     # Constructor...
     def __init__(self, host, port=6440, api_key=None, timeout_connect=None, timeout_read=None, tls=True, tls_ca_file=None, tls_certificate=None, tls_key=None, verbose=False, version='v1'):
