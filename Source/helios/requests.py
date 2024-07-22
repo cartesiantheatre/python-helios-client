@@ -121,11 +121,11 @@ class PerformTripletMiningSchema(Schema):
 # Similarity search request...
 @attr.s
 class SimilaritySearch:
+    algorithm               = attr.ib(default=None)
     similar_file            = attr.ib(default=None)
     similar_id              = attr.ib(default=None)
     similar_reference       = attr.ib(default=None)
     similar_url             = attr.ib(default=None)
-    same_genre              = attr.ib(default=None)
     maximum_results         = attr.ib(default=None)
 
 
@@ -133,11 +133,11 @@ class SimilaritySearch:
 class SimilaritySearchSchema(Schema):
 
     # Fields...
+    algorithm               = fields.String(allow_none=True)
     similar_file            = fields.String(allow_none=True)
     similar_id              = fields.Integer(allow_none=True)
     similar_reference       = fields.String(allow_none=True)
     similar_url             = fields.String(allow_none=True)
-    same_genre              = fields.Boolean(allow_none=True)
     maximum_results         = fields.Integer(allow_none=True)
 
     # Callback to receive dictionary of deserialized data...
