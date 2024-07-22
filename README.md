@@ -31,7 +31,7 @@ Traditionally, in the absence of such technology, the way this has been done for
 ## Quick installation
 
 ### Ubuntu
-Packages already prepared for Ubuntu 23.10 (mantic) and later are available on our Personal Package Archive (PPA) [here](https://launchpad.net/%7Ekip/+archive/ubuntu/helios-public). To get the package installed and be up and running in seconds, just run the following two commands:
+Packages already prepared for Ubuntu 24.04 (Noble) and later are available on our Personal Package Archive (PPA) [here](https://launchpad.net/%7Ekip/+archive/ubuntu/helios-public). To get the package installed and be up and running in seconds, just run the following two commands:
 
 ```console
 $ sudo add-apt-repository ppa:kip/helios-public
