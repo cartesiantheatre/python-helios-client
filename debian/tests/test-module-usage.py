@@ -55,7 +55,7 @@ if __name__ == '__main__':
     song_index = 0
 
     # Add a bunch of songs...
-    for song_path in glob.glob("/usr/share/games/lincity-ng/music/default/*.ogg"):
+    for song_path in glob.glob("/usr/share/lincity-ng/music/default/*.ogg"):
 
         # Generate unique song index for reference...
         song_index += 1
