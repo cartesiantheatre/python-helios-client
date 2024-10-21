@@ -209,11 +209,23 @@ class Client:
         query_parameters['negative']    = negative_song_reference
 
         # Submit request...
-        response = self._submit_request(
+        self._submit_request(
             endpoint='/learning/examples',
             method='DELETE',
             headers=headers,
             query_parameters=query_parameters)
+
+    # Delete the currently loaded learning model, reverting back to default...
+    def delete_learning_model(self):
+
+        # Initialize headers...
+        headers                         = self._common_headers
+
+        # Submit request...
+        self._submit_request(
+            endpoint='/learning/model',
+            method='DELETE',
+            headers=headers)
 
     # Delete an asynchronous job running on the server by job ID...
     def delete_job(self, job_id):
@@ -424,7 +436,7 @@ class Client:
         except marshmallow.exceptions.MarshmallowError as some_exception:
             raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
 
-        # Parse response...
+        # Return response...
         return system_status
 
     # Get information about available genres on the server...
@@ -538,6 +550,33 @@ class Client:
 
         # Return list of learning examples...
         return all_learning_examples
+
+    # Get learning model...
+    def get_learning_model(self):
+
+        # Initialize headers...
+        headers                     = self._common_headers
+        headers['Accept']           = Client._json_mime_type
+        headers['Accept-Encoding']  = Client._accept_encoding
+
+        # Submit request...
+        response = self._submit_request(
+            endpoint='/learning/model',
+            method='GET',
+            headers=headers)
+
+        # Extract and construct learning model...
+        try:
+            response_dict = response.json()
+            learning_model_schema = helios.responses.LearningModelSchema()
+            learning_model = learning_model_schema.load(response_dict)
+
+        # Deserialization error...
+        except marshmallow.exceptions.MarshmallowError as some_exception:
+            raise helios.exceptions.UnexpectedResponse(some_exception) from some_exception
+
+        # return response...
+        return learning_model
 
     # Get a single random song...
     def get_random_song(self):
@@ -891,6 +930,29 @@ class Client:
         # Server reported an error, raise appropriate exception...
         except requests.HTTPError as some_exception:
             self._raise_http_exception(some_exception.response.json())
+
+    # Upload and set the given learning model file...
+    def load_learning_model(self, learning_model_path):
+
+        # Initialize headers...
+        headers                     = self._common_headers
+        headers['Content-Type']     = Client._json_mime_type
+
+        # Load the learning model's JSON from disk...
+        json_data = None
+        with open(learning_model_path, "r") as file:
+            json_data = json.load(file)
+
+        # Construct learning model scheme to validate JSON before serializing
+        #  again...
+        learning_model_schema = helios.requests.LearningModelSchema()
+
+        # Submit request...
+        self._submit_request(
+            endpoint='/learning/model',
+            method='POST',
+            headers=headers,
+            data=learning_model_schema.dumps(json_data))
 
     # Modify a song in the catalogue...
     def modify_song(self, patch_song_dict, store=None, song_id=None, song_reference=None):

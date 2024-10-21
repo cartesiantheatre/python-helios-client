@@ -51,6 +51,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: ML',
         'Topic :: Database :: Database Engines/Servers',
         'Topic :: Internet',
         'Topic :: Internet :: WWW/HTTP',

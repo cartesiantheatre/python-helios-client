@@ -7,7 +7,7 @@
 # Imports...
 import attr
 from marshmallow import Schema, fields, post_load
-from helios.responses import LearningExample, LearningExampleSchema
+from helios.responses import LearningExample, LearningExampleSchema, LearningModel, LearningModelSchema
 
 # i18n...
 import gettext

@@ -86,6 +86,30 @@ class LearningExampleSchema(Schema):
         return LearningExample(**data)
 
 
+# Learning model...
+@attr.s
+class LearningModel:
+    version             = attr.ib(validator=attr.validators.instance_of(int))
+    values              = attr.ib()
+
+# learning model schema...
+class LearningModelSchema(Schema):
+
+    # Don't raise a ValidationError on load() when server's response contains
+    #  new fields the client may not recognize yet...
+    class Meta:
+        unknown = EXCLUDE
+
+    # Fields...
+    version             = fields.Integer(required=True)
+    values              = fields.List(fields.Float(), required=True)
+
+    # Callback to receive dictionary of deserialized data...
+    @post_load
+    def make_learning_model(self, data, **kwargs):
+        return LearningModel(**data)
+
+
 # Job status response...
 @attr.s
 class JobStatus:
