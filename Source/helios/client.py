@@ -125,8 +125,11 @@ class Client:
 
         # Construct list of learning example objects from triplet list...
         learning_examples = [
-            helios.requests.LearningExample(anchor, positive, negative) for
-            (anchor, positive, negative) in learning_example_triplets
+            helios.requests.LearningExample(
+                triplet_dict['anchor'],
+                triplet_dict['positive'],
+                triplet_dict['negative']) for
+            triplet_dict in learning_example_triplets
         ]
 
         # Construct learning example schema to transform learning example list
