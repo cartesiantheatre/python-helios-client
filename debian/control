@@ -32,7 +32,7 @@ Depends:
     python3-all,
     python3-setuptools
 Description: pure Python module to access a remote Helios server (Python 3)
- Helios is an intelligent music discovery platform.
+ Helios® is an intelligent music discovery platform.
  .
  This is an easy to use public pure Python 3 module that provides an API to
  communicate with a remote Helios server. The helios-client-utilities package
